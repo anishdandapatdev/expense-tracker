@@ -11,7 +11,8 @@ class BudgetProgress {
 
   BudgetProgress({required this.budget, required this.spentAmount});
 
-  double get percentUsed => budget.limitAmount > 0 ? (spentAmount / budget.limitAmount) : 0;
+  // FIXED: Returning 0.0 instead of 0
+  double get percentUsed => budget.limitAmount > 0 ? (spentAmount / budget.limitAmount) : 0.0;
   double get amountLeft => budget.limitAmount - spentAmount;
 }
 

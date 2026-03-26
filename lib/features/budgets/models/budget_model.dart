@@ -1,3 +1,5 @@
+// expense_tracker\lib\features\budgets\models\budget_model.dart
+// expense_tracker\lib\features\budgets\models\budget_model.dart
 class BudgetModel {
   final String id;
   final String userId;
@@ -25,7 +27,8 @@ class BudgetModel {
       id: map['id'] ?? '',
       userId: map['userId'] ?? '',
       category: map['category'] ?? '',
-      limitAmount: (map['limitAmount'] ?? 0.0).toDouble(),
+      // SAFELY PARSE LIMIT AMOUNT AS NUM FIRST
+      limitAmount: (map['limitAmount'] as num?)?.toDouble() ?? 0.0,
     );
   }
 }

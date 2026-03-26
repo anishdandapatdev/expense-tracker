@@ -41,7 +41,8 @@ class TransactionModel {
       id: map['id'] ?? '',
       userId: map['userId'] ?? '',
       type: map['type'] ?? 'expense',
-      amount: (map['amount'] ?? 0.0).toDouble(),
+      // SAFELY PARSE AMOUNT AS NUM FIRST
+      amount: (map['amount'] as num?)?.toDouble() ?? 0.0, 
       category: map['category'] ?? 'Other',
       account: map['account'] ?? 'Cash',
       date: (map['date'] as Timestamp).toDate(), // Convert back to DateTime

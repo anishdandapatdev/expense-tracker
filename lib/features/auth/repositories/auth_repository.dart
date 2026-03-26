@@ -21,8 +21,20 @@ class AuthRepository {
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   // Email & Password Sign Up
+// Email & Password Sign Up with Verification
   Future<UserCredential> signUpWithEmail(String email, String password) async {
-    return await _auth.createUserWithEmailAndPassword(email: email, password: password);
+    final userCredential = await _auth.createUserWithEmailAndPassword(
+      email: email, 
+      password: password,
+    );
+    
+    // Send verification email
+    await userCredential.user?.sendEmailVerification();
+    
+    // Sign out immediately so they have to verify before logging in
+    await _auth.signOut(); 
+    
+    return userCredential;
   }
 
   // Email & Password Login
