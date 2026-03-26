@@ -62,10 +62,10 @@ jobs:
         run: flutter build apk --release
 
       # 🔟 Upload artifacts (FIXED VERSION)
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-builds
-          path: |
-            build/app/outputs/bundle/release/app-release.aab
-            build/app/outputs/flutter-apk/app-release.apk
+      #- name: Upload Artifacts
+      #  uses: actions/upload-artifact@v4
+       # with:
+        #  name: android-builds
+         # path: |
+         #   build/app/outputs/bundle/release/app-release.aab
+          #  build/app/outputs/flutter-apk/app-release.apk
