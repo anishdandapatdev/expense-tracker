@@ -14,7 +14,7 @@ class AnalyticsScreen extends ConsumerWidget {
     final user = ref.watch(authStateProvider).value;
     final currency = ref.watch(currencyProvider);
     final selectedTimeframe = ref.watch(timeframeProvider);
-    
+
     // Fetch and compute analytics data
     final analyticsAsync = ref.watch(analyticsDataProvider(user?.uid ?? ''));
 
@@ -25,8 +25,14 @@ class AnalyticsScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            const Text('Analytics', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-            const Text('Your spending insights', style: TextStyle(color: Colors.grey, fontSize: 16)),
+            const Text(
+              'Analytics',
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            const Text(
+              'Your spending insights',
+              style: TextStyle(color: Colors.grey, fontSize: 16),
+            ),
             const SizedBox(height: 24),
 
             // Timeframe Toggle
@@ -40,11 +46,14 @@ class AnalyticsScreen extends ConsumerWidget {
                   final isSelected = selectedTimeframe == timeframe;
                   return Expanded(
                     child: GestureDetector(
-                      onTap: () => ref.read(timeframeProvider.notifier).state = timeframe,
+                      onTap: () => ref.read(timeframeProvider.notifier).state =
+                          timeframe,
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
+                          color: isSelected
+                              ? Theme.of(context).primaryColor
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Center(
@@ -52,7 +61,9 @@ class AnalyticsScreen extends ConsumerWidget {
                             timeframe,
                             style: TextStyle(
                               color: isSelected ? Colors.white : Colors.grey,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
                             ),
                           ),
                         ),
@@ -71,7 +82,9 @@ class AnalyticsScreen extends ConsumerWidget {
                 error: (err, stack) => Center(child: Text('Error: $err')),
                 data: (data) {
                   // Format large numbers (e.g., 3100 -> 3.1k)
-                  String formatCompact(double val) => val >= 1000 ? '${(val / 1000).toStringAsFixed(1)}k' : val.toStringAsFixed(0);
+                  String formatCompact(double val) => val >= 1000
+                      ? '${(val / 1000).toStringAsFixed(1)}k'
+                      : val.toStringAsFixed(0);
                   final net = data.totalIncome - data.totalExpense;
 
                   return ListView(
@@ -80,11 +93,29 @@ class AnalyticsScreen extends ConsumerWidget {
                       // Summary Cards Row
                       Row(
                         children: [
-                          _buildSummaryCard(context, 'INCOME', '${currency.symbol}${formatCompact(data.totalIncome)}', Colors.green.shade50, Colors.green),
+                          _buildSummaryCard(
+                            context,
+                            'INCOME',
+                            '${currency.symbol}${formatCompact(data.totalIncome)}',
+                            Colors.green.shade50,
+                            Colors.green,
+                          ),
                           const SizedBox(width: 12),
-                          _buildSummaryCard(context, 'EXPENSE', '${currency.symbol}${formatCompact(data.totalExpense)}', Colors.red.shade50, Colors.red),
+                          _buildSummaryCard(
+                            context,
+                            'EXPENSE',
+                            '${currency.symbol}${formatCompact(data.totalExpense)}',
+                            Colors.red.shade50,
+                            Colors.red,
+                          ),
                           const SizedBox(width: 12),
-                          _buildSummaryCard(context, 'NET', '${currency.symbol}${formatCompact(net)}', Colors.blue.shade50, Theme.of(context).primaryColor),
+                          _buildSummaryCard(
+                            context,
+                            'NET',
+                            '${currency.symbol}${formatCompact(net)}',
+                            Colors.blue.shade50,
+                            Theme.of(context).primaryColor,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 24),
@@ -116,7 +147,13 @@ class AnalyticsScreen extends ConsumerWidget {
   }
 
   // Helper for Top Summary Cards
-  Widget _buildSummaryCard(BuildContext context, String title, String amount, Color bgColor, Color textColor) {
+  Widget _buildSummaryCard(
+    BuildContext context,
+    String title,
+    String amount,
+    Color bgColor,
+    Color textColor,
+  ) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -126,9 +163,24 @@ class AnalyticsScreen extends ConsumerWidget {
         ),
         child: Column(
           children: [
-            Text(title, style: TextStyle(color: textColor.withOpacity(0.7), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+            Text(
+              title,
+              style: TextStyle(
+                color: textColor.withValues(alpha: 0.7),
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1,
+              ),
+            ),
             const SizedBox(height: 4),
-            Text(amount, style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              amount,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ),
@@ -136,20 +188,31 @@ class AnalyticsScreen extends ConsumerWidget {
   }
 
   // Helper for Chart Cards
-  Widget _buildChartCard(BuildContext context, {required String title, required Widget child}) {
+  Widget _buildChartCard(
+    BuildContext context, {
+    required String title,
+    required Widget child,
+  }) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color ?? Colors.white,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 24),
           SizedBox(height: 200, child: child),
         ],
@@ -159,8 +222,9 @@ class AnalyticsScreen extends ConsumerWidget {
 
   // The Donut Chart Widget
   Widget _buildDonutChart(Map<String, double> categorySpending) {
-    if (categorySpending.isEmpty) return const Center(child: Text('No expense data yet.'));
-
+    if (categorySpending.isEmpty) {
+  return const Center(child: Text('No expense data yet.'));
+}
     List<PieChartSectionData> sections = [];
     List<Widget> legendItems = [];
 
@@ -180,7 +244,14 @@ class AnalyticsScreen extends ConsumerWidget {
           children: [
             Icon(Icons.circle, color: color, size: 10),
             const SizedBox(width: 4),
-            Text(category, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+            Text(
+              category,
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       );
@@ -211,11 +282,12 @@ class AnalyticsScreen extends ConsumerWidget {
 
   // The Line Chart Widget
   Widget _buildLineChart(Map<String, Map<String, double>> monthlyTrend) {
-    if (monthlyTrend.isEmpty) return const Center(child: Text('Not enough data.'));
-
+   if (monthlyTrend.isEmpty) {
+  return const Center(child: Text('Not enough data.'));
+}
     List<FlSpot> incomeSpots = [];
     List<FlSpot> expenseSpots = [];
-    
+
     // Sort months (simplified logic for demonstration)
     int i = 0;
     monthlyTrend.forEach((month, values) {
@@ -226,18 +298,31 @@ class AnalyticsScreen extends ConsumerWidget {
 
     return LineChart(
       LineChartData(
-        gridData: FlGridData(show: true, drawVerticalLine: false, getDrawingHorizontalLine: (value) => FlLine(color: Colors.grey.withOpacity(0.2), strokeWidth: 1)),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          getDrawingHorizontalLine: (value) =>
+              FlLine(color: Colors.grey.withValues(alpha: 0.2), strokeWidth: 1),
+        ),
         titlesData: FlTitlesData(
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
               getTitlesWidget: (value, meta) {
-                if (value.toInt() >= 0 && value.toInt() < monthlyTrend.keys.length) {
+                if (value.toInt() >= 0 &&
+                    value.toInt() < monthlyTrend.keys.length) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(monthlyTrend.keys.elementAt(value.toInt()), style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                    child: Text(
+                      monthlyTrend.keys.elementAt(value.toInt()),
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
                   );
                 }
                 return const Text('');
@@ -255,7 +340,10 @@ class AnalyticsScreen extends ConsumerWidget {
             barWidth: 3,
             isStrokeCapRound: true,
             dotData: const FlDotData(show: true),
-            belowBarData: BarAreaData(show: true, color: Colors.green.withOpacity(0.1)),
+            belowBarData: BarAreaData(
+              show: true,
+              color: Colors.green.withValues(alpha: 0.1),
+            ),
           ),
           // Expense Line
           LineChartBarData(
@@ -265,7 +353,10 @@ class AnalyticsScreen extends ConsumerWidget {
             barWidth: 3,
             isStrokeCapRound: true,
             dotData: const FlDotData(show: true),
-            belowBarData: BarAreaData(show: true, color: Colors.red.withOpacity(0.1)),
+            belowBarData: BarAreaData(
+              show: true,
+              color: Colors.red.withValues(alpha: 0.1),
+            ),
           ),
         ],
       ),

@@ -21,9 +21,11 @@ class HomeScreen extends ConsumerWidget {
     // 1. Get current user and currency
     final user = ref.watch(authStateProvider).value;
     final currency = ref.watch(currencyProvider);
-    
+
     // 2. Fetch transactions stream (safely check if user is logged in)
-    final transactionsAsyncValue = ref.watch(transactionsStreamProvider(user?.uid ?? ''));
+    final transactionsAsyncValue = ref.watch(
+      transactionsStreamProvider(user?.uid ?? ''),
+    );
 
     return SafeArea(
       child: Padding(
@@ -39,20 +41,29 @@ class HomeScreen extends ConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(_getGreeting(), style: const TextStyle(color: Colors.grey, fontSize: 14)),
                     Text(
-                      user?.email?.split('@').first.toUpperCase() ?? 'USER 👋', 
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      _getGreeting(),
+                      style: const TextStyle(color: Colors.grey, fontSize: 14),
+                    ),
+                    Text(
+                      user?.email?.split('@').first.toUpperCase() ?? 'USER 👋',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
                 CircleAvatar(
                   backgroundColor: Colors.white,
                   child: IconButton(
-                    icon: const Icon(Icons.notifications_outlined, color: Colors.black),
+                    icon: const Icon(
+                      Icons.notifications_outlined,
+                      color: Colors.black,
+                    ),
                     onPressed: () {},
                   ),
-                )
+                ),
               ],
             ),
             const SizedBox(height: 24),
@@ -73,7 +84,7 @@ class HomeScreen extends ConsumerWidget {
                   }
                 }
                 final totalBalance = totalIncome - totalExpense;
-                
+
                 // Formatter for money (adds commas)
                 final moneyFormat = NumberFormat('#,##0.00', 'en_US');
 
@@ -88,81 +99,150 @@ class HomeScreen extends ConsumerWidget {
                           color: Theme.of(context).primaryColor,
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
-                            BoxShadow(color: Theme.of(context).primaryColor.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8))
+                            BoxShadow(
+                              color: Theme.of(
+                                context,
+                              ).primaryColor.withValues(alpha: 0.3),
+                              blurRadius: 15,
+                              offset: const Offset(0, 8),
+                            ),
                           ],
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('TOTAL BALANCE', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 1.2)),
+                            const Text(
+                              'TOTAL BALANCE',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
                             const SizedBox(height: 8),
                             Text(
                               '${currency.symbol}${moneyFormat.format(totalBalance)}',
-                              style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 36,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             const SizedBox(height: 24),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                _buildIncomeExpenseBox(context, 'Income', totalIncome, currency.symbol, Icons.arrow_outward, Colors.white24),
-                                _buildIncomeExpenseBox(context, 'Expenses', totalExpense, currency.symbol, Icons.call_received, Colors.white24),
+                                _buildIncomeExpenseBox(
+                                  context,
+                                  'Income',
+                                  totalIncome,
+                                  currency.symbol,
+                                  Icons.arrow_outward,
+                                  Colors.white24,
+                                ),
+                                _buildIncomeExpenseBox(
+                                  context,
+                                  'Expenses',
+                                  totalExpense,
+                                  currency.symbol,
+                                  Icons.call_received,
+                                  Colors.white24,
+                                ),
                               ],
-                            )
+                            ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 24),
-                      
+
                       // Recent Transactions Header
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Recent Transactions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                          TextButton(onPressed: () {}, child: const Text('See all')),
+                          const Text(
+                            'Recent Transactions',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {},
+                            child: const Text('See all'),
+                          ),
                         ],
                       ),
-                      
+
                       // Transactions List
                       Expanded(
-                        child: transactions.isEmpty 
-                          ? const Center(child: Text('No transactions yet. Add one!'))
-                          : ListView.builder(
-                              itemCount: transactions.length,
-                              itemBuilder: (context, index) {
-                                final t = transactions[index];
-                                final isIncome = t.type == 'income';
-                                final catColor = CategoryUtils.getColor(t.category);
-                                
-                                return Card(
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                  child: ListTile(
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                    leading: Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: catColor.withOpacity(0.15),
-                                        borderRadius: BorderRadius.circular(12),
+                        child: transactions.isEmpty
+                            ? const Center(
+                                child: Text('No transactions yet. Add one!'),
+                              )
+                            : ListView.builder(
+                                itemCount: transactions.length,
+                                itemBuilder: (context, index) {
+                                  final t = transactions[index];
+                                  final isIncome = t.type == 'income';
+                                  final catColor = CategoryUtils.getColor(
+                                    t.category,
+                                  );
+
+                                  return Card(
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: ListTile(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 8,
+                                          ),
+                                      leading: Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: catColor.withValues(
+                                            alpha: 0.15,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Icon(
+                                          CategoryUtils.getIcon(t.category),
+                                          color: catColor,
+                                        ),
                                       ),
-                                      child: Icon(CategoryUtils.getIcon(t.category), color: catColor),
-                                    ),
-                                    title: Text(t.category, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                    subtitle: Text(
-                                      t.note ?? DateFormat('MMM dd').format(t.date),
-                                      style: const TextStyle(color: Colors.grey, fontSize: 12),
-                                    ),
-                                    trailing: Text(
-                                      '${isIncome ? '+' : '-'}${currency.symbol}${moneyFormat.format(t.amount)}',
-                                      style: TextStyle(
-                                        color: isIncome ? Colors.green : Colors.red,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
+                                      title: Text(
+                                        t.category,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      subtitle: Text(
+                                        t.note ??
+                                            DateFormat('MMM dd').format(t.date),
+                                        style: const TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      trailing: Text(
+                                        '${isIncome ? '+' : '-'}${currency.symbol}${moneyFormat.format(t.amount)}',
+                                        style: TextStyle(
+                                          color: isIncome
+                                              ? Colors.green
+                                              : Colors.red,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              },
-                            ),
+                                  );
+                                },
+                              ),
                       ),
                     ],
                   ),
@@ -176,11 +256,21 @@ class HomeScreen extends ConsumerWidget {
   }
 
   // Helper widget for the Income/Expense mini boxes
-  Widget _buildIncomeExpenseBox(BuildContext context, String title, double amount, String symbol, IconData icon, Color bgColor) {
+  Widget _buildIncomeExpenseBox(
+    BuildContext context,
+    String title,
+    double amount,
+    String symbol,
+    IconData icon,
+    Color bgColor,
+  ) {
     final moneyFormat = NumberFormat('#,##0.00', 'en_US');
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Row(
         children: [
           Icon(icon, color: Colors.white70, size: 16),
@@ -188,8 +278,18 @@ class HomeScreen extends ConsumerWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(color: Colors.white70, fontSize: 12)),
-              Text('$symbol${moneyFormat.format(amount)}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(
+                title,
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+              Text(
+                '$symbol${moneyFormat.format(amount)}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
             ],
           ),
         ],

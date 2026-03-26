@@ -20,9 +20,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   
   // Local state for the form
   String _selectedType = 'expense'; // default to expense
-  String _selectedCategory = 'Food'; 
-  String _selectedAccount = 'Cash';
-  DateTime _selectedDate = DateTime.now();
+  final String _selectedCategory = 'Food'; 
+  final String _selectedAccount = 'Cash';
+  final DateTime _selectedDate = DateTime.now();
 
   @override
   void dispose() {

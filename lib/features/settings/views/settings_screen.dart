@@ -15,10 +15,12 @@ class SettingsScreen extends ConsumerWidget {
     final user = ref.watch(authStateProvider).value;
     final currency = ref.watch(currencyProvider);
     final themeMode = ref.watch(themeModeProvider);
-    
+
     // Determine if dark mode is active
-    final isDarkMode = themeMode == ThemeMode.dark || 
-        (themeMode == ThemeMode.system && MediaQuery.of(context).platformBrightness == Brightness.dark);
+    final isDarkMode =
+        themeMode == ThemeMode.dark ||
+        (themeMode == ThemeMode.system &&
+            MediaQuery.of(context).platformBrightness == Brightness.dark);
 
     return SafeArea(
       child: Padding(
@@ -27,7 +29,10 @@ class SettingsScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            const Text('Settings', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+            const Text(
+              'Settings',
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 24),
 
             // Profile Card
@@ -44,7 +49,11 @@ class SettingsScreen extends ConsumerWidget {
                     backgroundColor: Colors.white24,
                     child: Text(
                       user?.email?.substring(0, 1).toUpperCase() ?? 'U',
-                      style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -52,22 +61,37 @@ class SettingsScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Logged in as', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                        const Text(
+                          'Logged in as',
+                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
                         Text(
                           user?.email ?? 'Unknown User',
-                          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 32),
 
             // Preferences Section
-            const Text('PREFERENCES', style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+            const Text(
+              'PREFERENCES',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
+            ),
             const SizedBox(height: 12),
             Card(
               child: Column(
@@ -75,25 +99,38 @@ class SettingsScreen extends ConsumerWidget {
                   ListTile(
                     leading: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                      child: const Icon(Icons.currency_exchange, color: Colors.blue),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.currency_exchange,
+                        color: Colors.blue,
+                      ),
                     ),
                     title: const Text('Currency'),
                     subtitle: Text('${currency.name} (${currency.symbol})'),
-                    trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-                    onTap: () => context.push('/currency-setup'), // Let them change it
+                    trailing: const Icon(
+                      Icons.chevron_right,
+                      color: Colors.grey,
+                    ),
+                    onTap: () =>
+                        context.push('/currency-setup'), // Let them change it
                   ),
                   const Divider(height: 1, indent: 60),
                   ListTile(
                     leading: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(color: Colors.purple.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(
+                        color: Colors.purple.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       child: const Icon(Icons.dark_mode, color: Colors.purple),
                     ),
                     title: const Text('Dark Mode'),
                     trailing: Switch(
                       value: isDarkMode,
-                      activeColor: Theme.of(context).primaryColor,
+                      activeThumbColor: Theme.of(context).primaryColor,
                       onChanged: (value) {
                         ref.read(themeModeProvider.notifier).toggleTheme(value);
                       },
@@ -105,7 +142,15 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Data Section (Placeholders for now)
-            const Text('DATA', style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+            const Text(
+              'DATA',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
+            ),
             const SizedBox(height: 12),
             Card(
               child: Column(
@@ -113,25 +158,48 @@ class SettingsScreen extends ConsumerWidget {
                   ListTile(
                     leading: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                      child: const Icon(Icons.download_rounded, color: Colors.green),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.download_rounded,
+                        color: Colors.green,
+                      ),
                     ),
                     title: const Text('Export Data'),
                     subtitle: const Text('Download as CSV'),
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('CSV Export coming soon!')));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('CSV Export coming soon!'),
+                        ),
+                      );
                     },
                   ),
                   const Divider(height: 1, indent: 60),
                   ListTile(
                     leading: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                      child: const Icon(Icons.delete_outline, color: Colors.red),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.delete_outline,
+                        color: Colors.red,
+                      ),
                     ),
-                    title: const Text('Clear All Data', style: TextStyle(color: Colors.red)),
+                    title: const Text(
+                      'Clear All Data',
+                      style: TextStyle(color: Colors.red),
+                    ),
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Clear Data coming soon!')));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Clear Data coming soon!'),
+                        ),
+                      );
                     },
                   ),
                 ],
@@ -140,13 +208,24 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Account Section
-            const Text('ACCOUNT', style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+            const Text(
+              'ACCOUNT',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
+            ),
             const SizedBox(height: 12),
             Card(
               child: ListTile(
                 leading: Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   child: const Icon(Icons.logout, color: Colors.orange),
                 ),
                 title: const Text('Logout'),

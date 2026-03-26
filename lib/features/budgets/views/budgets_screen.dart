@@ -10,31 +10,63 @@ class BudgetsScreen extends ConsumerWidget {
   const BudgetsScreen({super.key});
 
   // A simple bottom sheet dialog to set/edit a budget limit
-  void _showSetBudgetDialog(BuildContext context, WidgetRef ref, String? existingCategory, double? existingAmount) {
-    final amountController = TextEditingController(text: existingAmount?.toStringAsFixed(0) ?? '');
+  void _showSetBudgetDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String? existingCategory,
+    double? existingAmount,
+  ) {
+    final amountController = TextEditingController(
+      text: existingAmount?.toStringAsFixed(0) ?? '',
+    );
     String selectedCategory = existingCategory ?? 'Food & Drink';
     final user = ref.read(authStateProvider).value;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (context) {
         return Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom, left: 24, right: 24, top: 24),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 24,
+            right: 24,
+            top: 24,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(existingCategory == null ? 'Create Budget' : 'Edit Budget', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Text(
+                existingCategory == null ? 'Create Budget' : 'Edit Budget',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 24),
               if (existingCategory == null) ...[
                 DropdownButtonFormField<String>(
-                  value: selectedCategory,
-                  decoration: const InputDecoration(labelText: 'Category', border: OutlineInputBorder()),
-                  items: ['Food & Drink', 'Transport', 'Shopping', 'Entertainment', 'Utilities']
-                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                      .toList(),
+                  initialValue: selectedCategory,
+                  decoration: const InputDecoration(
+                    labelText: 'Category',
+                    border: OutlineInputBorder(),
+                  ),
+                  items:
+                      [
+                            'Food & Drink',
+                            'Transport',
+                            'Shopping',
+                            'Entertainment',
+                            'Utilities',
+                          ]
+                          .map(
+                            (c) => DropdownMenuItem(value: c, child: Text(c)),
+                          )
+                          .toList(),
                   onChanged: (val) => selectedCategory = val!,
                 ),
                 const SizedBox(height: 16),
@@ -42,17 +74,27 @@ class BudgetsScreen extends ConsumerWidget {
               TextField(
                 controller: amountController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Monthly Limit', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                  labelText: 'Monthly Limit',
+                  border: OutlineInputBorder(),
+                ),
               ),
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
                   onPressed: () {
-                    final amount = double.tryParse(amountController.text) ?? 0.0;
+                    final amount =
+                        double.tryParse(amountController.text) ?? 0.0;
                     if (amount > 0 && user != null) {
-                      ref.read(budgetControllerProvider).setBudgetLimit(user.uid, selectedCategory, amount);
+                      ref
+                          .read(budgetControllerProvider)
+                          .setBudgetLimit(user.uid, selectedCategory, amount);
                       Navigator.pop(context);
                     }
                   },
@@ -71,7 +113,10 @@ class BudgetsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currency = ref.watch(currencyProvider);
     final progressAsync = ref.watch(budgetProgressProvider);
-    final moneyFormat = NumberFormat('#,##0', 'en_US'); // No decimals to match mockup
+    final moneyFormat = NumberFormat(
+      '#,##0',
+      'en_US',
+    ); // No decimals to match mockup
 
     return SafeArea(
       child: Padding(
@@ -83,19 +128,26 @@ class BudgetsScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Budgets', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Budgets',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                ),
                 IconButton(
                   icon: Container(
                     padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: Theme.of(context).primaryColor, borderRadius: BorderRadius.circular(8)),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     child: const Icon(Icons.add, color: Colors.white, size: 20),
                   ),
-                  onPressed: () => _showSetBudgetDialog(context, ref, null, null),
-                )
+                  onPressed: () =>
+                      _showSetBudgetDialog(context, ref, null, null),
+                ),
               ],
             ),
             const SizedBox(height: 24),
-            
+
             Expanded(
               child: progressAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
@@ -104,7 +156,8 @@ class BudgetsScreen extends ConsumerWidget {
                   if (progressList.isEmpty) {
                     return Center(
                       child: TextButton(
-                        onPressed: () => _showSetBudgetDialog(context, ref, null, null),
+                        onPressed: () =>
+                            _showSetBudgetDialog(context, ref, null, null),
                         child: const Text('No budgets set. Tap + to add one.'),
                       ),
                     );
@@ -115,8 +168,10 @@ class BudgetsScreen extends ConsumerWidget {
                     itemCount: progressList.length,
                     itemBuilder: (context, index) {
                       final bp = progressList[index];
-                      final catColor = CategoryUtils.getColor(bp.budget.category);
-                      
+                      final catColor = CategoryUtils.getColor(
+                        bp.budget.category,
+                      );
+
                       // Calculate progress bar color
                       Color progressColor = Colors.green;
                       if (bp.percentUsed >= 0.90) {
@@ -126,15 +181,24 @@ class BudgetsScreen extends ConsumerWidget {
                       }
 
                       // Ensure progress bar doesn't overflow past 1.0 (100%)
-                      final safePercent = bp.percentUsed > 1.0 ? 1.0 : bp.percentUsed;
+                      final safePercent = bp.percentUsed > 1.0
+                          ? 1.0
+                          : bp.percentUsed;
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: 16),
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).cardTheme.color ?? Colors.white,
+                          color:
+                              Theme.of(context).cardTheme.color ?? Colors.white,
                           borderRadius: BorderRadius.circular(24),
-                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: Column(
                           children: [
@@ -146,38 +210,94 @@ class BudgetsScreen extends ConsumerWidget {
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.all(10),
-                                      decoration: BoxDecoration(color: catColor.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
-                                      child: Icon(CategoryUtils.getIcon(bp.budget.category), color: catColor, size: 20),
+                                      decoration: BoxDecoration(
+                                        color: catColor.withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Icon(
+                                        CategoryUtils.getIcon(
+                                          bp.budget.category,
+                                        ),
+                                        color: catColor,
+                                        size: 20,
+                                      ),
                                     ),
                                     const SizedBox(width: 12),
                                     Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Text(bp.budget.category, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                        Text(DateFormat('yyyy-MM').format(DateTime.now()), style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                                        Text(
+                                          bp.budget.category,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        Text(
+                                          DateFormat(
+                                            'yyyy-MM',
+                                          ).format(DateTime.now()),
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 12,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ],
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.edit_outlined, color: Colors.grey, size: 20),
-                                  onPressed: () => _showSetBudgetDialog(context, ref, bp.budget.category, bp.budget.limitAmount),
-                                )
+                                  icon: const Icon(
+                                    Icons.edit_outlined,
+                                    color: Colors.grey,
+                                    size: 20,
+                                  ),
+                                  onPressed: () => _showSetBudgetDialog(
+                                    context,
+                                    ref,
+                                    bp.budget.category,
+                                    bp.budget.limitAmount,
+                                  ),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 16),
-                            
+
                             // Amount Row
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('Spent', style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+                                Text(
+                                  'Spent',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 14,
+                                  ),
+                                ),
                                 RichText(
                                   text: TextSpan(
-                                    style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontSize: 14),
+                                    style: TextStyle(
+                                      color: Theme.of(
+                                        context,
+                                      ).textTheme.bodyLarge?.color,
+                                      fontSize: 14,
+                                    ),
                                     children: [
-                                      TextSpan(text: '${currency.symbol}${moneyFormat.format(bp.spentAmount)} ', style: const TextStyle(fontWeight: FontWeight.bold)),
-                                      TextSpan(text: 'of ${currency.symbol}${moneyFormat.format(bp.budget.limitAmount)}', style: const TextStyle(color: Colors.grey)),
+                                      TextSpan(
+                                        text:
+                                            '${currency.symbol}${moneyFormat.format(bp.spentAmount)} ',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            'of ${currency.symbol}${moneyFormat.format(bp.budget.limitAmount)}',
+                                        style: const TextStyle(
+                                          color: Colors.grey,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -191,7 +311,9 @@ class BudgetsScreen extends ConsumerWidget {
                               child: LinearProgressIndicator(
                                 value: safePercent,
                                 backgroundColor: Colors.grey.shade200,
-                                valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  progressColor,
+                                ),
                                 minHeight: 8,
                               ),
                             ),
@@ -201,12 +323,22 @@ class BudgetsScreen extends ConsumerWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('${(bp.percentUsed * 100).toStringAsFixed(0)}% used', style: TextStyle(color: progressColor, fontWeight: FontWeight.bold, fontSize: 12)),
                                 Text(
-                                  bp.amountLeft < 0 
-                                      ? 'Overspent by ${currency.symbol}${moneyFormat.format(bp.amountLeft.abs())}' 
-                                      : '${currency.symbol}${moneyFormat.format(bp.amountLeft)} left', 
-                                  style: const TextStyle(color: Colors.grey, fontSize: 12)
+                                  '${(bp.percentUsed * 100).toStringAsFixed(0)}% used',
+                                  style: TextStyle(
+                                    color: progressColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Text(
+                                  bp.amountLeft < 0
+                                      ? 'Overspent by ${currency.symbol}${moneyFormat.format(bp.amountLeft.abs())}'
+                                      : '${currency.symbol}${moneyFormat.format(bp.amountLeft)} left',
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ],
                             ),
