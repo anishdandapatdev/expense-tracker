@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "301427047333",
+    "project_id": "expensetracker-c9938",
+    "storage_bucket": "expensetracker-c9938.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:301427047333:android:c6704a079de149e58cc64c",
+        "android_client_info": {
+          "package_name": "com.anish.tracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzYcZZujKEsH4N8xbE6MZ1ihXBe79D_Vk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

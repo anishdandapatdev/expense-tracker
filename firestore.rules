@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can only read/write their own profile
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Expenses - users can only access their own
+    match /expenses/{expenseId} {
+      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Categories - users can only access their own
+    match /categories/{categoryId} {
+      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Accounts - users can only access their own
+    match /accounts/{accountId} {
+      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Budgets - users can only access their own
+    match /budgets/{budgetId} {
+      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Exchange rates - read-only for all authenticated users
+    match /exchange_rates/{document=**} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+  }
+}
