@@ -15,7 +15,6 @@ class AnalyticsScreen extends ConsumerWidget {
     final currency = ref.watch(currencyProvider);
     final selectedTimeframe = ref.watch(timeframeProvider);
 
-    // Fetch and compute analytics data
     final analyticsAsync = ref.watch(analyticsDataProvider(user?.uid ?? ''));
 
     return SafeArea(
@@ -75,13 +74,11 @@ class AnalyticsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
 
-            // Handle Data Loading State
             Expanded(
               child: analyticsAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (err, stack) => Center(child: Text('Error: $err')),
                 data: (data) {
-                  // Format large numbers (e.g., 3100 -> 3.1k)
                   String formatCompact(double val) => val >= 1000
                       ? '${(val / 1000).toStringAsFixed(1)}k'
                       : val.toStringAsFixed(0);
@@ -90,7 +87,6 @@ class AnalyticsScreen extends ConsumerWidget {
                   return ListView(
                     physics: const BouncingScrollPhysics(),
                     children: [
-                      // Summary Cards Row
                       Row(
                         children: [
                           _buildSummaryCard(
@@ -120,7 +116,6 @@ class AnalyticsScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 24),
 
-                      // Donut Chart Card (Spending by Category)
                       _buildChartCard(
                         context,
                         title: 'Spending by Category',
@@ -128,7 +123,6 @@ class AnalyticsScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 24),
 
-                      // Line Chart Card (Monthly Trend)
                       _buildChartCard(
                         context,
                         title: 'Monthly Trend',
@@ -146,7 +140,6 @@ class AnalyticsScreen extends ConsumerWidget {
     );
   }
 
-  // Helper for Top Summary Cards
   Widget _buildSummaryCard(
     BuildContext context,
     String title,
@@ -187,7 +180,6 @@ class AnalyticsScreen extends ConsumerWidget {
     );
   }
 
-  // Helper for Chart Cards
   Widget _buildChartCard(
     BuildContext context, {
     required String title,
@@ -214,42 +206,41 @@ class AnalyticsScreen extends ConsumerWidget {
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
-          SizedBox(height: 200, child: child),
+          SizedBox(height: 220, child: child),
         ],
       ),
     );
   }
 
-  // The Donut Chart Widget
   Widget _buildDonutChart(Map<String, double> categorySpending) {
     if (categorySpending.isEmpty) {
-  return const Center(child: Text('No expense data yet.'));
-}
+      return const Center(child: Text('No expense data yet.'));
+    }
+
     List<PieChartSectionData> sections = [];
     List<Widget> legendItems = [];
 
     categorySpending.forEach((category, amount) {
       final color = CategoryUtils.getColor(category);
       sections.add(
-        PieChartSectionData(
-          color: color,
-          value: amount,
-          title: '', // Hide text inside the chart for a cleaner look
-          radius: 40, // Thickness of the donut
-        ),
+        PieChartSectionData(color: color, value: amount, title: '', radius: 45),
       );
       legendItems.add(
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.circle, color: color, size: 10),
-            const SizedBox(width: 4),
+            Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 6),
             Text(
               category,
               style: TextStyle(
-                color: color,
+                color: Colors.grey[700],
                 fontSize: 12,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -263,8 +254,8 @@ class AnalyticsScreen extends ConsumerWidget {
           child: PieChart(
             PieChartData(
               sections: sections,
-              centerSpaceRadius: 60,
-              sectionsSpace: 4, // Gap between sections
+              centerSpaceRadius: 65,
+              sectionsSpace: 3,
             ),
             duration: const Duration(milliseconds: 800),
           ),
@@ -280,87 +271,178 @@ class AnalyticsScreen extends ConsumerWidget {
     );
   }
 
-  // The Line Chart Widget
   Widget _buildLineChart(Map<String, Map<String, double>> monthlyTrend) {
-   if (monthlyTrend.isEmpty) {
-  return const Center(child: Text('Not enough data.'));
-}
+    if (monthlyTrend.isEmpty) {
+      return const Center(child: Text('Not enough data.'));
+    }
+
     List<FlSpot> incomeSpots = [];
     List<FlSpot> expenseSpots = [];
+    List<String> months = monthlyTrend.keys.toList();
 
-    // Sort months (simplified logic for demonstration)
-    int i = 0;
-    monthlyTrend.forEach((month, values) {
-      incomeSpots.add(FlSpot(i.toDouble(), values['income'] ?? 0));
-      expenseSpots.add(FlSpot(i.toDouble(), values['expense'] ?? 0));
-      i++;
-    });
+    // 1. Calculate the maximum value to dynamically scale the chart
+    double maxY = 0;
 
-    return LineChart(
-      LineChartData(
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          getDrawingHorizontalLine: (value) =>
-              FlLine(color: Colors.grey.withValues(alpha: 0.2), strokeWidth: 1),
+    for (int i = 0; i < months.length; i++) {
+      final income = monthlyTrend[months[i]]!['income'] ?? 0;
+      final expense = monthlyTrend[months[i]]!['expense'] ?? 0;
+      
+      if (income > maxY) maxY = income;
+      if (expense > maxY) maxY = expense;
+
+      incomeSpots.add(FlSpot(i.toDouble(), income));
+      expenseSpots.add(FlSpot(i.toDouble(), expense));
+    }
+
+    // Give the chart a default max if everything is 0
+    if (maxY == 0) maxY = 1000;
+    
+    // 2. Calculate a dynamic interval (shows roughly 4-5 labels on the Y-axis)
+    double interval = maxY / 4;
+    if (interval < 100) interval = 100; // Minimum interval size
+
+    // 3. Helper function to format large numbers (e.g., 1500 -> 1.5k, 10000 -> 10k)
+    String formatYLabel(double value) {
+      if (value == 0) return '0';
+      if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(1)}M';
+      if (value >= 1000) {
+        // Removes the .0 if it's a clean thousand (e.g., 10.0k becomes 10k)
+        return '${(value / 1000).toStringAsFixed(1)}k'.replaceAll('.0k', 'k');
+      }
+      return value.toInt().toString();
+    }
+
+    return Column(
+      children: [
+        Expanded(
+          child: LineChart(
+            LineChartData(
+              // Add some padding to the top of the chart so lines don't hit the ceiling
+              minY: 0,
+              maxY: maxY * 1.2, 
+              gridData: FlGridData(
+                show: true,
+                drawVerticalLine: false,
+                getDrawingHorizontalLine: (value) => FlLine(
+                  color: Colors.grey.withValues(alpha: 0.15),
+                  strokeWidth: 1,
+                ),
+              ),
+              titlesData: FlTitlesData(
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) {
+                      if (value.toInt() >= 0 && value.toInt() < months.length) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(
+                            months[value.toInt()],
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 11,
+                            ),
+                          ),
+                        );
+                      }
+                      return const Text('');
+                    },
+                  ),
+                ),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 45, // Slightly increased to fit '10.5k' text
+                    interval: interval, // Using our dynamic interval
+                    getTitlesWidget: (value, meta) {
+                      return Text(
+                        formatYLabel(value), // Using our new formatting function
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 11,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              borderData: FlBorderData(show: false),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: incomeSpots,
+                  isCurved: true,
+                  color: Colors.green,
+                  barWidth: 3,
+                  isStrokeCapRound: true,
+                  dotData: FlDotData(
+                    show: true,
+                    getDotPainter: (spot, percent, barData, index) {
+                      return FlDotCirclePainter(
+                        radius: 3,
+                        color: Colors.green,
+                        strokeWidth: 0,
+                      );
+                    },
+                  ),
+                  belowBarData: BarAreaData(
+                    show: true,
+                    color: Colors.green.withValues(alpha: 0.08),
+                  ),
+                ),
+                LineChartBarData(
+                  spots: expenseSpots,
+                  isCurved: true,
+                  color: Colors.red,
+                  barWidth: 3,
+                  isStrokeCapRound: true,
+                  dotData: FlDotData(
+                    show: true,
+                    getDotPainter: (spot, percent, barData, index) {
+                      return FlDotCirclePainter(
+                        radius: 3,
+                        color: Colors.red,
+                        strokeWidth: 0,
+                      );
+                    },
+                  ),
+                  belowBarData: BarAreaData(
+                    show: true,
+                    color: Colors.red.withValues(alpha: 0.08),
+                  ),
+                ),
+              ],
+            ),
+            duration: const Duration(milliseconds: 800),
+          ),
         ),
-        titlesData: FlTitlesData(
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                if (value.toInt() >= 0 &&
-                    value.toInt() < monthlyTrend.keys.length) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      monthlyTrend.keys.elementAt(value.toInt()),
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
-                  );
-                }
-                return const Text('');
-              },
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              children: [
+                Container(width: 12, height: 3, color: Colors.green),
+                const SizedBox(width: 6),
+                const Text('Income', style: TextStyle(fontSize: 12)),
+              ],
             ),
-          ),
+            const SizedBox(width: 24),
+            Row(
+              children: [
+                Container(width: 12, height: 3, color: Colors.red),
+                const SizedBox(width: 6),
+                const Text('Expense', style: TextStyle(fontSize: 12)),
+              ],
+            ),
+          ],
         ),
-        borderData: FlBorderData(show: false),
-        lineBarsData: [
-          // Income Line
-          LineChartBarData(
-            spots: incomeSpots,
-            isCurved: true,
-            color: Colors.green,
-            barWidth: 3,
-            isStrokeCapRound: true,
-            dotData: const FlDotData(show: true),
-            belowBarData: BarAreaData(
-              show: true,
-              color: Colors.green.withValues(alpha: 0.1),
-            ),
-          ),
-          // Expense Line
-          LineChartBarData(
-            spots: expenseSpots,
-            isCurved: true,
-            color: Colors.red,
-            barWidth: 3,
-            isStrokeCapRound: true,
-            dotData: const FlDotData(show: true),
-            belowBarData: BarAreaData(
-              show: true,
-              color: Colors.red.withValues(alpha: 0.1),
-            ),
-          ),
-        ],
-      ),
-      duration: const Duration(milliseconds: 800),
+      ],
     );
   }
 }

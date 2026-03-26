@@ -25,7 +25,10 @@ class CategoryUtils {
       case 'salary': return Colors.teal;
       case 'freelance': return Colors.lightBlue;
       case 'utilities': return Colors.amber;
-      default: return Colors.grey;
+      default: 
+        // Generates a consistent Material color based on the category name's text
+        final int colorIndex = category.hashCode.abs() % Colors.primaries.length;
+        return Colors.primaries[colorIndex];
     }
   }
 }

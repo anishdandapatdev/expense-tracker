@@ -1,160 +1,467 @@
 //expense_tracker\lib\features\budgets\controllers\budget_controller.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart'; // Run: flutter pub add uuid
 import 'package:expense_tracker/features/transactions/models/transaction_model.dart';
 import 'package:expense_tracker/features/transactions/controllers/transaction_controller.dart';
-import 'package:go_router/go_router.dart';
 import 'package:expense_tracker/features/auth/repositories/auth_repository.dart';
-// We use ConsumerStatefulWidget to access Riverpod and manage local form state
-class AddTransactionScreen extends ConsumerStatefulWidget {
-  const AddTransactionScreen({super.key});
+import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:expense_tracker/features/settings/controllers/currency_controller.dart';
+import 'package:expense_tracker/core/utils/category_utils.dart';
+
+class AddTransactionScreen extends HookConsumerWidget {
+  static const String routeName = '/add-transaction';
+  final TransactionModel? existingTransaction;
+
+  const AddTransactionScreen({super.key, this.existingTransaction});
 
   @override
-  ConsumerState<AddTransactionScreen> createState() => _AddTransactionScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final formKey = useMemoized(() => GlobalKey<FormState>());
+   final amountController = useTextEditingController(
+        text: existingTransaction != null ? existingTransaction!.amount.toString() : "0");
+    final descriptionController = useTextEditingController(
+        text: existingTransaction?.note ?? "");
+        
+    final selectedType = useState<String>(
+        existingTransaction != null 
+            ? (existingTransaction!.type == 'income' ? 'Income' : 'Expense') 
+            : 'Expense');
+    final selectedDate = useState<DateTime>(existingTransaction?.date ?? DateTime.now());
+    final selectedCategory = useState<String?>(existingTransaction?.category ?? 'Food');
+    final selectedAccount = useState<String?>(existingTransaction?.account ?? 'Cash');
+    final isRepeating = useState<bool>(false);
+    final currentCurrency = ref.watch(currencyProvider);
 
-class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
-  // Form controllers
-  final TextEditingController _amountController = TextEditingController();
-  final TextEditingController _noteController = TextEditingController();
-  
-  // Local state for the form
-  String _selectedType = 'expense'; // default to expense
-  final String _selectedCategory = 'Food'; 
-  final String _selectedAccount = 'Cash';
-  final DateTime _selectedDate = DateTime.now();
+    final accentColor = selectedType.value == 'Expense' ? const Color(0xFFEF4444) : const Color(0xFF007A3D);
 
-  @override
-  void dispose() {
-    _amountController.dispose();
-    _noteController.dispose();
-    super.dispose();
-  }
+    final categories = ['Food & Drink', 'Transport', 'Shopping', 'Entertainment', 'Utilities', 'Salary', 'Other'];
+    final accounts = ['Cash', 'Bank', 'Credit Card'];
 
-  void _saveTransaction() async {
-    final amountText = _amountController.text;
-    if (amountText.isEmpty) return; 
+    void saveTransaction() async {
+      if (formKey.currentState!.validate()) {
+        final amount = double.tryParse(amountController.text) ?? 0.0;
+        final user = ref.read(authStateProvider).value;
 
-    final amount = double.tryParse(amountText) ?? 0.0;
-    if (amount <= 0) return;
+        if (user == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please log in to add a transaction')),
+          );
+          return;
+        }
 
-    // 1. GET THE REAL LOGGED-IN USER
-    final user = ref.read(authStateProvider).value;
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error: You must be logged in to save.')),
-      );
-      return;
+        final transactionType = selectedType.value.toLowerCase();
+
+        final transaction = TransactionModel(
+          // Keep the existing ID if editing, otherwise generate a new one
+          id: existingTransaction?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+          userId: user.uid,
+          type: transactionType,
+          amount: amount,
+          category: selectedCategory.value ?? 'Other',
+          account: selectedAccount.value ?? 'Cash',
+          date: selectedDate.value,
+          note: descriptionController.text,
+        );
+
+        try {
+         if (existingTransaction != null) {
+            await ref.read(transactionControllerProvider).updateTransaction(transaction);
+          } else {
+            await ref.read(transactionControllerProvider).addTransaction(transaction);
+          }
+          if (context.mounted) {
+            Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(existingTransaction != null ? 'Transaction updated!' : 'Transaction added!')),
+            );
+          }
+        } catch (e) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error: $e')),
+            );
+          }
+        }
+      }
     }
 
-    // 2. USE THE REAL UID
-    final newTransaction = TransactionModel(
-      id: const Uuid().v4(), 
-      userId: user.uid, // <-- CHANGED THIS LINE
-      type: _selectedType,
-      amount: amount,
-      category: _selectedCategory,
-      account: _selectedAccount,
-      date: _selectedDate,
-      note: _noteController.text.isNotEmpty ? _noteController.text : null,
-    );
-
-    try {
-      await ref.read(transactionControllerProvider).addTransaction(newTransaction);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Transaction Saved!')),
-        );
-        context.pop(); 
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Add Transaction'),
-        leading: IconButton(
-  icon: const Icon(Icons.arrow_back),
-  onPressed: () => context.pop(),
-),
+        backgroundColor: const Color(0xFF007A3D),
+        elevation: 0,
+        leading: const BackButton(color: Colors.white),
+        title: Text( // <-- Removed 'const' from here
+          existingTransaction != null ? "Edit Transaction" : "Add Transaction",
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold), // <-- Added 'const' here
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: _buildTypeSegmentedToggle(selectedType, accentColor),
+          ),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          key: formKey,
+          child: Column(
+            children: [
+              _buildAmountCard(amountController, currentCurrency, selectedType),
+              const SizedBox(height: 15),
+              _buildDetailsCard(
+                context: context,
+                descriptionController: descriptionController,
+                categories: categories,
+                selectedCategory: selectedCategory,
+                selectedDate: selectedDate,
+                accentColor: accentColor,
+              ),
+              const SizedBox(height: 15),
+              _buildPaymentMethodCard(
+                accounts: accounts,
+                selectedAccount: selectedAccount,
+                isRepeating: isRepeating,
+                accentColor: accentColor,
+              ),
+              const SizedBox(height: 30),
+              _buildSubmitButton(saveTransaction, accentColor),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTypeSegmentedToggle(ValueNotifier<String> selectedType, Color accentColor) {
+    return SegmentedButton<String>(
+      segments: const [
+        ButtonSegment(
+          value: 'Expense',
+          label: Text('Expense'),
+          icon: Icon(Icons.outbound, size: 18),
+        ),
+        ButtonSegment(
+          value: 'Income',
+          label: Text('Income'),
+          icon: Icon(Icons.call_received, size: 18),
+        ),
+      ],
+      selected: {selectedType.value},
+      onSelectionChanged: (newSelection) {
+        selectedType.value = newSelection.first;
+      },
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+          if (states.contains(WidgetState.selected)) return Colors.white;
+          return Colors.white.withValues(alpha: 0.3);
+        }),
+        foregroundColor: WidgetStateProperty.resolveWith<Color>((states) {
+          if (states.contains(WidgetState.selected)) return accentColor;
+          return Colors.white;
+        }),
+        side: WidgetStateProperty.all(BorderSide.none),
+      ),
+    );
+  }
+
+  Widget _buildAmountCard(
+    TextEditingController amountController,
+    Currency currentCurrency,
+    ValueNotifier<String> selectedType,
+  ) {
+    final amountColor = selectedType.value == 'Expense' ? const Color(0xFFEF4444) : const Color(0xFF007A3D);
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Set Amount",
+              style: TextStyle(color: Colors.grey[600], fontSize: 14),
+            ),
+            const SizedBox(height: 5),
+            TextFormField(
+              controller: amountController,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: amountColor,
+              ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+              ],
+              decoration: InputDecoration(
+                prefixText: '${currentCurrency.symbol} ',
+                prefixStyle: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: amountColor,
+                ),
+                border: InputBorder.none,
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty || double.tryParse(value) == 0) {
+                  return 'Please enter a valid amount';
+                }
+                return null;
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailsCard({
+    required BuildContext context,
+    required TextEditingController descriptionController,
+    required List<String> categories,
+    required ValueNotifier<String?> selectedCategory,
+    required ValueNotifier<DateTime> selectedDate,
+    required Color accentColor,
+  }) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // Segmented Control for Income/Expense (Simplified for now)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ChoiceChip(
-                  label: const Text('Expense'),
-                  selected: _selectedType == 'expense',
-                  selectedColor: Colors.red.shade100,
-                  onSelected: (bool selected) {
-                    setState(() => _selectedType = 'expense');
-                  },
-                ),
-                const SizedBox(width: 16),
-                ChoiceChip(
-                  label: const Text('Income'),
-                  selected: _selectedType == 'income',
-                  selectedColor: Colors.green.shade100,
-                  onSelected: (bool selected) {
-                    setState(() => _selectedType = 'income');
-                  },
-                ),
-              ],
+            TextFormField(
+              controller: descriptionController,
+              decoration: _buildInputDecoration(
+                hintText: "Enter Description",
+                icon: Icons.edit_note,
+              ),
+              style: const TextStyle(fontSize: 16),
             ),
-            const SizedBox(height: 24),
-            
-            // Amount Input
-            TextField(
-              controller: _amountController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: 'Amount (₹)',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.currency_rupee),
+            const Divider(),
+            const Text(
+              "Category",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 12),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: categories.map((category) {
+                  final isSelected = selectedCategory.value == category;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 12.0),
+                    child: GestureDetector(
+                      onTap: () => selectedCategory.value = category,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isSelected ? accentColor : Colors.grey.shade300,
+                            width: isSelected ? 2.5 : 1.5,
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                           Icon(
+                              CategoryUtils.getIcon(category), // Using your central utility!
+                              size: 36,
+                              color: isSelected ? accentColor : Colors.grey[600],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              category,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: isSelected ? accentColor : Colors.grey[700],
+                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
             ),
-            const SizedBox(height: 16),
-
-            // Note Input
-            TextField(
-              controller: _noteController,
-              decoration: const InputDecoration(
-                labelText: 'Notes (optional)',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            
-            const Spacer(),
-            
-            // Save Button
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  foregroundColor: Colors.white,
+            const Divider(),
+            InkWell(
+              onTap: () async {
+                DateTime? picked = await showDatePicker(
+                  context: context,
+                  initialDate: selectedDate.value,
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2101),
+                );
+                if (picked != null) selectedDate.value = picked;
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  children: [
+                    const Icon(Icons.calendar_today, color: Colors.grey),
+                    const SizedBox(width: 15),
+                    Text(
+                      DateFormat('dd MMMM yyyy').format(selectedDate.value),
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const Spacer(),
+                    const Text(
+                      "Set Date",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ],
                 ),
-                onPressed: _saveTransaction,
-                child: const Text('Save Transaction', style: TextStyle(fontSize: 16)),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildPaymentMethodCard({
+    required List<String> accounts,
+    required ValueNotifier<String?> selectedAccount,
+    required ValueNotifier<bool> isRepeating,
+    required Color accentColor,
+  }) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Payment Method",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: accounts.map((account) {
+                  final isSelected = selectedAccount.value == account;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 12.0),
+                    child: GestureDetector(
+                      onTap: () => selectedAccount.value = account,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: isSelected ? accentColor : Colors.grey[100],
+                          borderRadius: BorderRadius.circular(16),
+                          border: isSelected ? null : Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              _getAccountIcon(account),
+                              size: 32,
+                              color: isSelected ? Colors.white : Colors.grey[600],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              account,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: isSelected ? Colors.white : Colors.grey[700],
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+            const Divider(),
+            Row(
+              children: [
+                const Text(
+                  "Repeat",
+                  style: TextStyle(fontSize: 16),
+                ),
+                const Spacer(),
+                Switch(
+                  value: isRepeating.value,
+                  onChanged: (val) => isRepeating.value = val,
+                  activeThumbColor: Colors.blue[600],
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton(VoidCallback onPressed, Color accentColor) {
+    return SizedBox(
+      width: double.infinity,
+      height: 60,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: accentColor,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          elevation: 5,
+        ),
+        child: Text( // <-- Removed 'const' from here
+          existingTransaction != null ? "UPDATE" : "CONTINUE",
+          style: const TextStyle( // <-- Added 'const' here
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _buildInputDecoration({
+    required String hintText,
+    required IconData icon,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      prefixIcon: Icon(icon, color: Colors.grey),
+      border: InputBorder.none,
+      focusedBorder: InputBorder.none,
+      enabledBorder: InputBorder.none,
+      contentPadding: const EdgeInsets.symmetric(vertical: 10),
+    );
+  }
+
+
+  IconData _getAccountIcon(String account) {
+    switch (account) {
+      case 'Cash':
+        return Icons.payments;
+      case 'Bank':
+        return Icons.account_balance;
+      case 'Credit Card':
+        return Icons.credit_card;
+      default:
+        return Icons.credit_card;
+    }
   }
 }

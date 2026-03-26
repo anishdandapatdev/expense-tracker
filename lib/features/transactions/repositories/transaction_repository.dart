@@ -21,6 +21,20 @@ class TransactionRepository {
       throw Exception('Failed to add transaction: $e');
     }
   }
+  // Function to update an existing transaction in Firestore
+  Future<void> updateTransaction(TransactionModel transaction) async {
+    try {
+      // Find the specific document by its ID and update it with the new data
+      await _firestore
+          .collection('users')
+          .doc(transaction.userId)
+          .collection('transactions')
+          .doc(transaction.id)
+          .update(transaction.toMap()); // Make sure you have a toMap() or toJson() in your model!
+    } catch (e) {
+      throw Exception('Failed to update transaction: $e');
+    }
+  }
 
   Stream<List<TransactionModel>> getUserTransactions(String userId) {
     return _transactions

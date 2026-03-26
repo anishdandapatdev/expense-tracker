@@ -48,9 +48,14 @@ final budgetProgressProvider = Provider<AsyncValue<List<BudgetProgress>>>((ref) 
   for (var budget in budgets) {
     double spent = 0;
     for (var t in transactions) {
-      // Only sum expenses for this specific category in the current month/year
+      // 1. ADDED FALLBACK LOGIC HERE
+      // This ensures old 'Food' transactions count towards the new 'Food & Drink' budget
+      bool isCategoryMatch = (t.category == budget.category) || 
+                             (budget.category == 'Food & Drink' && t.category == 'Food');
+
+      // 2. UPDATED IF STATEMENT TO USE isCategoryMatch
       if (t.type == 'expense' && 
-          t.category == budget.category &&
+          isCategoryMatch && 
           t.date.month == now.month &&
           t.date.year == now.year) {
         spent += t.amount;

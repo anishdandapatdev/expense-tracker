@@ -6,7 +6,7 @@ import 'package:expense_tracker/core/utils/category_utils.dart';
 import 'package:expense_tracker/features/auth/repositories/auth_repository.dart';
 import 'package:expense_tracker/features/settings/controllers/currency_controller.dart';
 import 'package:expense_tracker/features/transactions/controllers/transaction_controller.dart';
-
+import 'package:expense_tracker/features/transactions/views/add_transaction_screen.dart';
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -196,6 +196,15 @@ class HomeScreen extends ConsumerWidget {
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                     child: ListTile(
+                                    onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => AddTransactionScreen(existingTransaction: t),
+                                          ),
+                                        );
+                                      },
+                                      
                                       contentPadding:
                                           const EdgeInsets.symmetric(
                                             horizontal: 16,
