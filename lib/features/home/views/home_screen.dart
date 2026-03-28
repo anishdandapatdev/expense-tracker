@@ -1,21 +1,19 @@
-// lib\features\home\views\home_screen.dart
+// lib/features/home/views/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:expense_tracker/core/utils/category_utils.dart';
+
 import 'package:expense_tracker/features/auth/repositories/auth_repository.dart';
 import 'package:expense_tracker/features/settings/controllers/currency_controller.dart';
 import 'package:expense_tracker/features/transactions/controllers/transaction_controller.dart';
-import 'package:expense_tracker/features/transactions/views/add_transaction_screen.dart';
+
+// Import your custom UI components
+import 'header_homescreen.dart';
+import 'balance_card.dart';
+import 'money_friends.dart';
+import 'transactions_list.dart';
+
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
-
-  String _getGreeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,44 +27,17 @@ class HomeScreen extends ConsumerWidget {
     );
 
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _getGreeting(),
-                      style: const TextStyle(color: Colors.grey, fontSize: 14),
-                    ),
-                    Text(
-                      user?.email?.split('@').first.toUpperCase() ?? 'USER 👋',
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                CircleAvatar(
-                  backgroundColor: Colors.white,
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.notifications_outlined,
-                      color: Colors.black,
-                    ),
-                    onPressed: () {},
-                  ),
-                ),
-              ],
-            ),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+            
+            // --- Externalized Header Component ---
+            HeaderHomescreen(email: user?.email),
+            
             const SizedBox(height: 24),
 
             // Handle Data State (Loading, Error, Success)
@@ -86,224 +57,37 @@ class HomeScreen extends ConsumerWidget {
                 }
                 final totalBalance = totalIncome - totalExpense;
 
-                // Formatter for money (adds commas)
-                final moneyFormat = NumberFormat('#,##0.00', 'en_US');
-
-                return Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Balance Card
-                      Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Theme.of(
-                                context,
-                              ).primaryColor.withValues(alpha: 0.3),
-                              blurRadius: 15,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'TOTAL BALANCE',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 1.2,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '${currency.symbol}${moneyFormat.format(totalBalance)}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 36,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                _buildIncomeExpenseBox(
-                                  context,
-                                  'Income',
-                                  totalIncome,
-                                  currency.symbol,
-                                  Icons.arrow_outward,
-                                  Colors.white24,
-                                ),
-                                _buildIncomeExpenseBox(
-                                  context,
-                                  'Expenses',
-                                  totalExpense,
-                                  currency.symbol,
-                                  Icons.call_received,
-                                  Colors.white24,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                      // --- Externalized Balance Card Component ---
+                      BalanceCardScreen(
+                        totalBalance: totalBalance,
+                        totalIncome: totalIncome,
+                        totalExpense: totalExpense,
+                        currencySymbol: currency.symbol,
                       ),
+                      
                       const SizedBox(height: 24),
 
-                      // Recent Transactions Header
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Recent Transactions',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {},
-                            child: const Text('See all'),
-                          ),
-                        ],
-                      ),
+                      // --- New Money with Friends Component ---
+                      const MoneyFriendsSection(),
 
-                      // Transactions List
-                      Expanded(
-                        child: transactions.isEmpty
-                            ? const Center(
-                                child: Text('No transactions yet. Add one!'),
-                              )
-                            : ListView.builder(
-                                itemCount: transactions.length,
-                                itemBuilder: (context, index) {
-                                  final t = transactions[index];
-                                  final isIncome = t.type == 'income';
-                                  final catColor = CategoryUtils.getColor(
-                                    t.category,
-                                  );
+                      const SizedBox(height: 24),
 
-                                  return Card(
-                                    margin: const EdgeInsets.only(bottom: 12),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: ListTile(
-                                    onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => AddTransactionScreen(existingTransaction: t),
-                                          ),
-                                        );
-                                      },
-                                      
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 8,
-                                          ),
-                                      leading: Container(
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: catColor.withValues(
-                                            alpha: 0.15,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        child: Icon(
-                                          CategoryUtils.getIcon(t.category),
-                                          color: catColor,
-                                        ),
-                                      ),
-                                      title: Text(
-                                        t.category,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      subtitle: Text(
-                                        t.note ??
-                                            DateFormat('MMM dd').format(t.date),
-                                        style: const TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                      trailing: Text(
-                                        '${isIncome ? '+' : '-'}${currency.symbol}${moneyFormat.format(t.amount)}',
-                                        style: TextStyle(
-                                          color: isIncome
-                                              ? Colors.green
-                                              : Colors.red,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
+                      // --- Externalized Transactions List Component ---
+                      TransactionsList(
+                        transactions: transactions,
+                        currencySymbol: currency.symbol,
                       ),
+                      const SizedBox(height: 20), // Bottom padding
                     ],
-                  ),
-                );
+                  );
               },
             ),
           ],
         ),
       ),
-    );
-  }
-
-  // Helper widget for the Income/Expense mini boxes
-  Widget _buildIncomeExpenseBox(
-    BuildContext context,
-    String title,
-    double amount,
-    String symbol,
-    IconData icon,
-    Color bgColor,
-  ) {
-    final moneyFormat = NumberFormat('#,##0.00', 'en_US');
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.white70, size: 16),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
-              ),
-              Text(
-                '$symbol${moneyFormat.format(amount)}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+    ));
   }
 }
