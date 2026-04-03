@@ -47,7 +47,7 @@ class _MainLayoutState extends State<MainLayout> {
         },
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Theme.of(context).primaryColor,
-        unselectedItemColor: Colors.grey.shade400,
+        unselectedItemColor: Colors.grey.shade600,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         items: const [

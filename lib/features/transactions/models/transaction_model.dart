@@ -9,6 +9,7 @@ class TransactionModel {
   final String account; // e.g., 'Cash', 'Bank'
   final DateTime date;
   final String? note;
+  final bool isHidden;
 
   TransactionModel({
     required this.id,
@@ -19,7 +20,32 @@ class TransactionModel {
     required this.account,
     required this.date,
     this.note,
+    this.isHidden = false,
   });
+
+  TransactionModel copyWith({
+    String? id,
+    String? userId,
+    String? type,
+    double? amount,
+    String? category,
+    String? account,
+    DateTime? date,
+    String? note,
+    bool? isHidden,
+  }) {
+    return TransactionModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      type: type ?? this.type,
+      amount: amount ?? this.amount,
+      category: category ?? this.category,
+      account: account ?? this.account,
+      date: date ?? this.date,
+      note: note ?? this.note,
+      isHidden: isHidden ?? this.isHidden,
+    );
+  }
 
   // Convert to Map for Firestore
   Map<String, dynamic> toMap() {
@@ -32,6 +58,7 @@ class TransactionModel {
       'account': account,
       'date': Timestamp.fromDate(date), // Convert DateTime to Firestore Timestamp
       'note': note,
+      'isHidden': isHidden,
     };
   }
 
@@ -47,6 +74,7 @@ class TransactionModel {
       account: map['account'] ?? 'Cash',
       date: (map['date'] as Timestamp).toDate(), // Convert back to DateTime
       note: map['note'],
+      isHidden: map['isHidden'] ?? false,
     );
   }
 }

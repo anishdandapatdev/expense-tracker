@@ -72,7 +72,6 @@ class AddFriendMoneyScreen extends HookConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         backgroundColor: const Color(0xFF007A3D),
         elevation: 0,

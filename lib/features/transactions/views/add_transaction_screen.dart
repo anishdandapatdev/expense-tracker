@@ -87,15 +87,17 @@ class AddTransactionScreen extends HookConsumerWidget {
       }
     }
 
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: isDarkMode ? Theme.of(context).scaffoldBackgroundColor : Colors.grey[100],
       appBar: AppBar(
         backgroundColor: const Color(0xFF007A3D),
         elevation: 0,
         leading: const BackButton(color: Colors.white),
-        title: Text( // <-- Removed 'const' from here
+        title: Text(
           existingTransaction != null ? "Edit Transaction" : "Add Transaction",
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold), // <-- Added 'const' here
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),
@@ -111,7 +113,12 @@ class AddTransactionScreen extends HookConsumerWidget {
           key: formKey,
           child: Column(
             children: [
-              _buildAmountCard(amountController, currentCurrency, selectedType),
+              _buildAmountCard(
+                amountController, 
+                currentCurrency, 
+                selectedType, 
+                isDarkMode,
+              ),
               const SizedBox(height: 15),
               _buildDetailsCard(
                 context: context,
@@ -120,6 +127,7 @@ class AddTransactionScreen extends HookConsumerWidget {
                 selectedCategory: selectedCategory,
                 selectedDate: selectedDate,
                 accentColor: accentColor,
+                isDarkMode: isDarkMode,
               ),
               const SizedBox(height: 15),
               _buildPaymentMethodCard(
@@ -127,6 +135,7 @@ class AddTransactionScreen extends HookConsumerWidget {
                 selectedAccount: selectedAccount,
                 isRepeating: isRepeating,
                 accentColor: accentColor,
+                isDarkMode: isDarkMode,
               ),
               const SizedBox(height: 30),
               _buildSubmitButton(saveTransaction, accentColor),
@@ -173,9 +182,14 @@ class AddTransactionScreen extends HookConsumerWidget {
     TextEditingController amountController,
     Currency currentCurrency,
     ValueNotifier<String> selectedType,
+    bool isDarkMode,
   ) {
     final amountColor = selectedType.value == 'Expense' ? const Color(0xFFEF4444) : const Color(0xFF007A3D);
+    final cardBgColor = isDarkMode ? Colors.grey.shade900 : Colors.white;
+    final hintColor = isDarkMode ? Colors.grey.shade400 : Colors.grey[600];
+
     return Card(
+      color: cardBgColor,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Padding(
@@ -185,7 +199,7 @@ class AddTransactionScreen extends HookConsumerWidget {
           children: [
             Text(
               "Set Amount",
-              style: TextStyle(color: Colors.grey[600], fontSize: 14),
+              style: TextStyle(color: hintColor, fontSize: 14),
             ),
             const SizedBox(height: 5),
             TextFormField(
@@ -229,26 +243,38 @@ class AddTransactionScreen extends HookConsumerWidget {
     required ValueNotifier<String?> selectedCategory,
     required ValueNotifier<DateTime> selectedDate,
     required Color accentColor,
+    required bool isDarkMode,
   }) {
+    final titleColor = isDarkMode ? Colors.white : Colors.black87;
+    final cardBgColor = isDarkMode ? Colors.grey.shade900 : Colors.white;
+    final itemBgColor = isDarkMode ? Colors.grey.shade800 : Colors.white;
+    final borderColor = isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300;
+    final iconColor = isDarkMode ? Colors.grey.shade400 : Colors.grey[600];
+    final textColor = isDarkMode ? Colors.grey.shade300 : Colors.grey[700];
+    final hintColor = isDarkMode ? Colors.grey.shade500 : Colors.grey;
+
     return Card(
+      color: cardBgColor,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextFormField(
               controller: descriptionController,
+              style: TextStyle(fontSize: 16, color: titleColor),
               decoration: _buildInputDecoration(
                 hintText: "Enter Description",
                 icon: Icons.edit_note,
+                hintColor: hintColor,
               ),
-              style: const TextStyle(fontSize: 16),
             ),
             const Divider(),
-            const Text(
+            Text(
               "Category",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: titleColor),
             ),
             const SizedBox(height: 12),
             SingleChildScrollView(
@@ -263,10 +289,10 @@ class AddTransactionScreen extends HookConsumerWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: itemBgColor,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: isSelected ? accentColor : Colors.grey.shade300,
+                            color: isSelected ? accentColor : borderColor,
                             width: isSelected ? 2.5 : 1.5,
                           ),
                         ),
@@ -274,9 +300,9 @@ class AddTransactionScreen extends HookConsumerWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                            Icon(
-                              CategoryUtils.getIcon(category), // Using your central utility!
+                              CategoryUtils.getIcon(category),
                               size: 36,
-                              color: isSelected ? accentColor : Colors.grey[600],
+                              color: isSelected ? accentColor : iconColor,
                             ),
                             const SizedBox(height: 6),
                             Text(
@@ -284,7 +310,7 @@ class AddTransactionScreen extends HookConsumerWidget {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 13,
-                                color: isSelected ? accentColor : Colors.grey[700],
+                                color: isSelected ? accentColor : textColor,
                                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                               ),
                             ),
@@ -311,16 +337,16 @@ class AddTransactionScreen extends HookConsumerWidget {
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_today, color: Colors.grey),
+                    Icon(Icons.calendar_today, color: hintColor),
                     const SizedBox(width: 15),
                     Text(
                       DateFormat('dd MMMM yyyy').format(selectedDate.value),
-                      style: const TextStyle(fontSize: 16),
+                      style: TextStyle(fontSize: 16, color: titleColor),
                     ),
                     const Spacer(),
-                    const Text(
+                    Text(
                       "Set Date",
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: hintColor),
                     ),
                   ],
                 ),
@@ -337,8 +363,17 @@ class AddTransactionScreen extends HookConsumerWidget {
     required ValueNotifier<String?> selectedAccount,
     required ValueNotifier<bool> isRepeating,
     required Color accentColor,
+    required bool isDarkMode,
   }) {
+    final titleColor = isDarkMode ? Colors.white : Colors.black87;
+    final cardBgColor = isDarkMode ? Colors.grey.shade900 : Colors.white;
+    final itemBgColor = isDarkMode ? Colors.grey.shade800 : Colors.grey[100];
+    final borderColor = isDarkMode ? Colors.grey.shade700 : Colors.grey.shade300;
+    final iconColor = isDarkMode ? Colors.grey.shade400 : Colors.grey[600];
+    final textColor = isDarkMode ? Colors.grey.shade300 : Colors.grey[700];
+
     return Card(
+      color: cardBgColor,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Padding(
@@ -346,9 +381,9 @@ class AddTransactionScreen extends HookConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               "Payment Method",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold, color: titleColor),
             ),
             const SizedBox(height: 10),
             SingleChildScrollView(
@@ -363,9 +398,9 @@ class AddTransactionScreen extends HookConsumerWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                         decoration: BoxDecoration(
-                          color: isSelected ? accentColor : Colors.grey[100],
+                          color: isSelected ? accentColor : itemBgColor,
                           borderRadius: BorderRadius.circular(16),
-                          border: isSelected ? null : Border.all(color: Colors.grey.shade300),
+                          border: isSelected ? null : Border.all(color: borderColor),
                         ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -373,7 +408,7 @@ class AddTransactionScreen extends HookConsumerWidget {
                             Icon(
                               _getAccountIcon(account),
                               size: 32,
-                              color: isSelected ? Colors.white : Colors.grey[600],
+                              color: isSelected ? Colors.white : iconColor,
                             ),
                             const SizedBox(height: 6),
                             Text(
@@ -381,7 +416,7 @@ class AddTransactionScreen extends HookConsumerWidget {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 13,
-                                color: isSelected ? Colors.white : Colors.grey[700],
+                                color: isSelected ? Colors.white : textColor,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -396,9 +431,9 @@ class AddTransactionScreen extends HookConsumerWidget {
             const Divider(),
             Row(
               children: [
-                const Text(
+                Text(
                   "Repeat",
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 16, color: titleColor),
                 ),
                 const Spacer(),
                 Switch(
@@ -425,9 +460,9 @@ class AddTransactionScreen extends HookConsumerWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           elevation: 5,
         ),
-        child: Text( // <-- Removed 'const' from here
+        child: Text(
           existingTransaction != null ? "UPDATE" : "CONTINUE",
-          style: const TextStyle( // <-- Added 'const' here
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -440,10 +475,12 @@ class AddTransactionScreen extends HookConsumerWidget {
   InputDecoration _buildInputDecoration({
     required String hintText,
     required IconData icon,
+    required Color hintColor,
   }) {
     return InputDecoration(
       hintText: hintText,
-      prefixIcon: Icon(icon, color: Colors.grey),
+      hintStyle: TextStyle(color: hintColor),
+      prefixIcon: Icon(icon, color: hintColor),
       border: InputBorder.none,
       focusedBorder: InputBorder.none,
       enabledBorder: InputBorder.none,

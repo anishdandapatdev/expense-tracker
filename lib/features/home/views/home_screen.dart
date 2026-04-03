@@ -9,6 +9,7 @@ import 'package:expense_tracker/features/transactions/controllers/transaction_co
 // Import your custom UI components
 import 'header_homescreen.dart';
 import 'balance_card.dart';
+import 'savings_goal_card.dart';
 import 'money_friends.dart';
 import 'transactions_list.dart';
 
@@ -38,7 +39,7 @@ class HomeScreen extends ConsumerWidget {
             // --- Externalized Header Component ---
             HeaderHomescreen(email: user?.email),
             
-            const SizedBox(height: 24),
+            const SizedBox(height: 14),
 
             // Handle Data State (Loading, Error, Success)
             transactionsAsyncValue.when(
@@ -68,17 +69,23 @@ class HomeScreen extends ConsumerWidget {
                         currencySymbol: currency.symbol,
                       ),
                       
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16),
+
+                      // --- Savings Goal Component (Premium Feature) ---
+                      const SavingsGoalCard(),
+                      
+                      const SizedBox(height: 16),
 
                       // --- New Money with Friends Component ---
                       const MoneyFriendsSection(),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 18),
 
                       // --- Externalized Transactions List Component ---
                       TransactionsList(
-                        transactions: transactions,
+                        transactions: transactions.where((t) => !t.isHidden).toList(),
                         currencySymbol: currency.symbol,
+                        isPreview: true,
                       ),
                       const SizedBox(height: 20), // Bottom padding
                     ],

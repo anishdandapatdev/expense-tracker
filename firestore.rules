@@ -30,6 +30,12 @@ service cloud.firestore {
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
     }
     
+    // Savings Goals - users can only access their own
+    match /savings_goals/{goalId} {
+      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+    
     // Exchange rates - read-only for all authenticated users
     match /exchange_rates/{document=**} {
       allow read: if request.auth != null;

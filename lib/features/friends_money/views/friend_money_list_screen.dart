@@ -19,8 +19,9 @@ class FriendMoneyListScreen extends ConsumerWidget {
       friendMoneyStreamProvider(user?.uid ?? ''),
     );
 
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text('Money with Friends', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: const Color(0xFF2E3A59),
@@ -57,7 +58,9 @@ class FriendMoneyListScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               final record = records[index];
               final isLent = record.type == 'lent';
-              final backgroundColor = isLent ? const Color(0xFFE8F5E9) : const Color(0xFFFFEBEE);
+              final backgroundColor = isLent 
+                  ? (isDarkMode ? Colors.green.withOpacity(0.15) : const Color(0xFFE8F5E9)) 
+                  : (isDarkMode ? Colors.red.withOpacity(0.15) : const Color(0xFFFFEBEE));
               final iconColor = isLent ? const Color(0xFF2E7D32) : const Color(0xFFC62828);
               final icon = isLent ? Icons.call_made : Icons.call_received;
 

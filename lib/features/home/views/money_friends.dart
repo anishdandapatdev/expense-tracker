@@ -21,7 +21,19 @@ class MoneyFriendsSection extends ConsumerWidget {
       friendMoneyStreamProvider(user?.uid ?? ''),
     );
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
+    // Dynamic Colors based on theme
     final viewDetailsColor = isDarkMode ? Colors.white60 : Colors.black54;
+    final titleColor = isDarkMode ? Colors.white : const Color(0xFF2E3A59);
+    final cardBgColor = isDarkMode ? Theme.of(context).cardColor : Colors.white;
+    final borderColor = isDarkMode ? Colors.grey.shade800 : Colors.grey.shade100;
+    final shadowColor = isDarkMode ? Colors.black.withOpacity(0.3) : Colors.grey.withOpacity(0.05);
+    final dividerColor = isDarkMode ? Colors.grey.shade800 : const Color(0xFFF0F0F0);
+    final separatorColor = isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200;
+    final incomeColor = isDarkMode ? Colors.greenAccent : const Color(0xFF1E4E42);
+    final expenseColor = isDarkMode ? Colors.redAccent : const Color(0xFFE22144);
+    final iconIncomeColor = isDarkMode ? Colors.greenAccent : const Color(0xFF2A7865);
+    final subTextColor = isDarkMode ? Colors.grey.shade400 : Colors.grey;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,12 +41,12 @@ class MoneyFriendsSection extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Budget Progress',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF2E3A59),
+                color: titleColor,
               ),
             ),
             TextButton.icon(
@@ -56,12 +68,12 @@ class MoneyFriendsSection extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.all(12.0),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cardBgColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade100),
+            border: Border.all(color: borderColor),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withValues(alpha:0.05),
+                color: shadowColor,
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -93,16 +105,16 @@ class MoneyFriendsSection extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Text('💰', style: TextStyle(fontSize: 20)),
-                          SizedBox(width: 8),
+                          const Text('💰', style: TextStyle(fontSize: 20)),
+                          const SizedBox(width: 8),
                           Text(
                             'Money with Friends',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF2E3A59),
+                              color: titleColor,
                             ),
                           ),
                         ],
@@ -127,7 +139,7 @@ class MoneyFriendsSection extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const Divider(height: 1, color: Color(0xFFF0F0F0)),
+                  Divider(height: 1, color: dividerColor),
                   const SizedBox(height: 16),
                   
                   // Middle part: Amounts
@@ -137,13 +149,13 @@ class MoneyFriendsSection extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Row(
+                            Row(
                               children: [
-                                Icon(Icons.call_made, color: Color(0xFF2A7865), size: 16),
-                                SizedBox(width: 4),
+                                Icon(Icons.call_made, color: iconIncomeColor, size: 16),
+                                const SizedBox(width: 4),
                                 Text(
                                   'You will receive',
-                                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                                  style: TextStyle(color: subTextColor, fontSize: 13),
                                 ),
                               ],
                             ),
@@ -152,32 +164,32 @@ class MoneyFriendsSection extends ConsumerWidget {
                               padding: const EdgeInsets.only(left: 20.0),
                               child: Text(
                                 '${currency.symbol}${moneyFormat.format(totalLent)}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1E4E42),
+                                  color: incomeColor,
                                 ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      Container(width: 1, height: 40, color: Colors.grey.shade200),
+                      Container(width: 1, height: 40, color: separatorColor),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Row(
+                            Row(
                               children: [
-                                Icon(Icons.call_received, color: Color(0xFFE22144), size: 16),
-                                SizedBox(width: 4),
+                                Icon(Icons.call_received, color: expenseColor, size: 16),
+                                const SizedBox(width: 4),
                                 Text(
                                   'You Owe',
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFF2E3A59),
+                                    color: titleColor,
                                   ),
                                 ),
                               ],
@@ -187,10 +199,10 @@ class MoneyFriendsSection extends ConsumerWidget {
                               padding: const EdgeInsets.only(left: 20.0),
                               child: Text(
                                 '${currency.symbol}${moneyFormat.format(totalBorrowed)}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFFE22144),
+                                  color: expenseColor,
                                 ),
                               ),
                             ),
@@ -247,7 +259,7 @@ class MoneyFriendsSection extends ConsumerWidget {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFBE9EF),
+                              color: const Color.fromARGB(255, 163, 79, 107),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Column(
@@ -255,14 +267,14 @@ class MoneyFriendsSection extends ConsumerWidget {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.call_received, color: Color(0xFFE22144), size: 16),
+                                    Icon(Icons.call_received, color: Color.fromARGB(255, 255, 255, 255), size: 16),
                                     SizedBox(width: 4),
-                                    Text('I Borrowed', style: TextStyle(color: Color(0xFFE22144), fontSize: 13, fontWeight: FontWeight.bold)),
+                                    Text('I Borrowed', style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 13, fontWeight: FontWeight.bold)),
                                   ],
                                 ),
                                 SizedBox(height: 2),
-                                Text('Add Record', style: TextStyle(color: Color(0xFFE22144), fontSize: 11)),
-                              ],
+                                Text('Add Record', style: TextStyle(color: Color.fromARGB(255, 236, 236, 236), fontSize: 11)),
+                              ], 
                             ),
                           ),
                         ),

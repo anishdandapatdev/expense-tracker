@@ -23,8 +23,14 @@ class _CurrencySelectionScreenState extends ConsumerState<CurrencySelectionScree
   void _saveAndContinue() {
     if (_selectedCurrency != null) {
       ref.read(currencyProvider.notifier).setCurrency(_selectedCurrency!);
-      // Navigate to Home Screen after selection
-      context.go('/'); 
+      
+      // If we pushed this screen from the Home Screen header, simply pop it.
+      // If we came here from the initial login flow natively, go to Dashboard.
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      } else {
+        context.go('/');
+      }
     }
   }
 

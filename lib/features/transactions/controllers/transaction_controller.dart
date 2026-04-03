@@ -41,6 +41,17 @@ class TransactionController {
     }
   }
 
+  // Function to soft-delete a transaction from history
+  Future<void> hideTransactionHistory(TransactionModel transaction) async {
+    try {
+      final hiddenTransaction = transaction.copyWith(isHidden: true);
+      await _repository.updateTransaction(hiddenTransaction);
+    } catch (e) {
+      debugPrint('Error hiding transaction: $e');
+      rethrow;
+    }
+  }
+
   // Function to delete a transaction
   Future<void> deleteTransaction(String transactionId) async {
     try {

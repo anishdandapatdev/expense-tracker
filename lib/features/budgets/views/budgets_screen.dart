@@ -119,6 +119,15 @@ class BudgetsScreen extends ConsumerWidget {
       'en_US',
     ); // No decimals to match mockup
 
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
+    // Dynamic Colors based on theme
+    final titleColor = isDarkMode ? Colors.white : const Color(0xFF2E3A59);
+    final cardBgColor = isDarkMode ? Theme.of(context).cardColor : Colors.white;
+    final progressBgColor = isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200;
+    final subTextColor = isDarkMode ? Colors.grey.shade400 : Colors.grey;
+    final shadowColor = isDarkMode ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.03);
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -129,9 +138,9 @@ class BudgetsScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Budgets',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: titleColor),
                 ),
                 IconButton(
                   icon: Container(
@@ -155,13 +164,13 @@ class BudgetsScreen extends ConsumerWidget {
                 error: (err, stack) => Center(child: Text('Error: $err')),
                 data: (progressList) {
                   if (progressList.isEmpty) {
-                    return Center(
-                      child: TextButton(
-                        onPressed: () =>
-                            _showSetBudgetDialog(context, ref, null, null),
-                        child: const Text('No budgets set. Tap + to add one.'),
-                      ),
-                    );
+                     return Center(
+                       child: TextButton(
+                         onPressed: () =>
+                             _showSetBudgetDialog(context, ref, null, null),
+                         child: Text('No budgets set. Tap + to add one.', style: TextStyle(color: subTextColor)),
+                       ),
+                     );
                   }
 
                   return ListView.builder(
@@ -190,12 +199,11 @@ class BudgetsScreen extends ConsumerWidget {
                         margin: const EdgeInsets.only(bottom: 16),
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color:
-                              Theme.of(context).cardTheme.color ?? Colors.white,
+                          color: cardBgColor,
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.03),
+                              color: shadowColor,
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),
@@ -230,17 +238,18 @@ class BudgetsScreen extends ConsumerWidget {
                                       children: [
                                         Text(
                                           bp.budget.category,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
+                                            color: titleColor,
                                           ),
                                         ),
                                         Text(
                                           DateFormat(
-                                            'yyyy-MM',
+                                            'MMM yyyy',
                                           ).format(DateTime.now()),
-                                          style: const TextStyle(
-                                            color: Colors.grey,
+                                          style: TextStyle(
+                                            color: subTextColor,
                                             fontSize: 12,
                                           ),
                                         ),
@@ -249,9 +258,9 @@ class BudgetsScreen extends ConsumerWidget {
                                   ],
                                 ),
                                 IconButton(
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.edit_outlined,
-                                    color: Colors.grey,
+                                    color: subTextColor,
                                     size: 20,
                                   ),
                                   onPressed: () => _showSetBudgetDialog(
@@ -272,31 +281,29 @@ class BudgetsScreen extends ConsumerWidget {
                                 Text(
                                   'Spent',
                                   style: TextStyle(
-                                    color: Colors.grey.shade600,
+                                    color: subTextColor,
                                     fontSize: 14,
                                   ),
                                 ),
                                 RichText(
                                   text: TextSpan(
                                     style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).textTheme.bodyLarge?.color,
                                       fontSize: 14,
                                     ),
                                     children: [
                                       TextSpan(
                                         text:
                                             '${currency.symbol}${moneyFormat.format(bp.spentAmount)} ',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontWeight: FontWeight.bold,
+                                          color: titleColor,
                                         ),
                                       ),
                                       TextSpan(
                                         text:
                                             'of ${currency.symbol}${moneyFormat.format(bp.budget.limitAmount)}',
-                                        style: const TextStyle(
-                                          color: Colors.grey,
+                                        style: TextStyle(
+                                          color: subTextColor,
                                         ),
                                       ),
                                     ],
@@ -311,7 +318,7 @@ class BudgetsScreen extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(8),
                               child: LinearProgressIndicator(
                                 value: safePercent,
-                                backgroundColor: Colors.grey.shade200,
+                                backgroundColor: progressBgColor,
                                 valueColor: AlwaysStoppedAnimation<Color>(
                                   progressColor,
                                 ),
@@ -336,8 +343,8 @@ class BudgetsScreen extends ConsumerWidget {
                                   bp.amountLeft < 0
                                       ? 'Overspent by ${currency.symbol}${moneyFormat.format(bp.amountLeft.abs())}'
                                       : '${currency.symbol}${moneyFormat.format(bp.amountLeft)} left',
-                                  style: const TextStyle(
-                                    color: Colors.grey,
+                                  style: TextStyle(
+                                    color: subTextColor,
                                     fontSize: 12,
                                   ),
                                 ),
