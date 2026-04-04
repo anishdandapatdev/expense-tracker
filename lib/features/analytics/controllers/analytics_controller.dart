@@ -94,18 +94,28 @@ final analyticsDataProvider = Provider.family<AsyncValue<AnalyticsData>, String>
 
     // Now process transactions
     for (var t in transactions) {
-      // Comparison logic triggers regardless of selected timeframe bounds
-      if (t.date.compareTo(lastWeekSunday) >= 0 && t.date.compareTo(thisWeekSunday) < 0) {
-        if (t.type == 'income') lastWeekInc += t.amount;
-        else lastWeekExp += t.amount;
-      } else if (t.date.compareTo(thisWeekSunday) >= 0 && t.date.compareTo(nextWeekSunday) < 0) {
-        if (t.type == 'income') thisWeekInc += t.amount;
-        else thisWeekExp += t.amount;
-      }
+  // Comparison logic
+  if (t.date.compareTo(lastWeekSunday) >= 0 &&
+      t.date.compareTo(thisWeekSunday) < 0) {
+    if (t.type == 'income') {
+      lastWeekInc += t.amount;
+    } else {
+      lastWeekExp += t.amount;
+    }
+  } else if (t.date.compareTo(thisWeekSunday) >= 0 &&
+      t.date.compareTo(nextWeekSunday) < 0) {
+    if (t.type == 'income') {
+      thisWeekInc += t.amount;
+    } else {
+      thisWeekExp += t.amount;
+    }
+  }
 
-      if (t.date.isBefore(startDate)) continue;
+  if (t.date.isBefore(startDate)) {
+    continue;
+  }
 
-      if (t.type == 'income') {
+  if (t.type == 'income') {
         income += t.amount;
       } else {
         expense += t.amount;

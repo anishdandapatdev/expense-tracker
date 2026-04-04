@@ -27,7 +27,7 @@ class AppLockController extends StateNotifier<bool> {
   Future<void> toggleLock(bool value) async {
     state = value;
     if (_prefs != null) {
-      await _prefs!.setBool(_appLockKey, value);
+      await _prefs.setBool(_appLockKey, value);
     }
   }
 }

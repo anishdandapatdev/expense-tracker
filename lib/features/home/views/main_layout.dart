@@ -4,6 +4,7 @@ import 'package:expense_tracker/features/home/views/home_screen.dart';
 import 'package:expense_tracker/features/budgets/views/budgets_screen.dart';
 import 'package:expense_tracker/features/settings/views/settings_screen.dart';
 import 'package:expense_tracker/features/analytics/views/analytics_screen.dart';
+import 'package:expense_tracker/core/widgets/offline_banner.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -27,7 +28,12 @@ class _MainLayoutState extends State<MainLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: Column(
+        children: [
+          const OfflineBanner(),
+          Expanded(child: _screens[_currentIndex]),
+        ],
+      ),
       // Center Floating Action Button
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/add-transaction'),

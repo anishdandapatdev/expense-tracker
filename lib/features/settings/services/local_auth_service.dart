@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:flutter/foundation.dart';
 final localAuthServiceProvider = Provider<LocalAuthService>((ref) {
   return LocalAuthService();
 });
@@ -17,7 +17,7 @@ class LocalAuthService {
 
       return canCheckBiometrics || isDeviceSupported;
     } on PlatformException catch (e) {
-      print('Biometric check error: ${e.message}');
+      debugPrint('Biometric check error: ${e.message}');
       return false;
     }
   }
@@ -27,7 +27,7 @@ class LocalAuthService {
     try {
       return await _auth.getAvailableBiometrics();
     } on PlatformException catch (e) {
-      print('Error fetching biometrics: ${e.message}');
+      debugPrint('Error fetching biometrics: ${e.message}');
       return [];
     }
   }
@@ -50,7 +50,7 @@ class LocalAuthService {
 
       return didAuthenticate;
     } on PlatformException catch (e) {
-      print('Auth error: ${e.message}');
+      debugPrint('Auth error: ${e.message}');
       return false;
     }
   }
@@ -60,7 +60,7 @@ class LocalAuthService {
     try {
       await _auth.stopAuthentication();
     } catch (e) {
-      print('Cancel auth error: $e');
+      debugPrint('Cancel auth error: $e');
     }
   }
 }

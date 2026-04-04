@@ -32,6 +32,7 @@ class AddTransactionScreen extends HookConsumerWidget {
     final selectedCategory = useState<String?>(existingTransaction?.category ?? 'Food');
     final selectedAccount = useState<String?>(existingTransaction?.account ?? 'Cash');
     final isRepeating = useState<bool>(false);
+    final isSaving = useState<bool>(false);
     final currentCurrency = ref.watch(currencyProvider);
 
     final accentColor = selectedType.value == 'Expense' ? const Color(0xFFEF4444) : const Color(0xFF007A3D);
@@ -40,7 +41,9 @@ class AddTransactionScreen extends HookConsumerWidget {
     final accounts = ['Cash', 'Bank', 'Credit Card'];
 
     void saveTransaction() async {
+      if (isSaving.value) return; // Prevent double-tap
       if (formKey.currentState!.validate()) {
+        isSaving.value = true;
         final amount = double.tryParse(amountController.text) ?? 0.0;
         final user = ref.read(authStateProvider).value;
 
@@ -48,6 +51,7 @@ class AddTransactionScreen extends HookConsumerWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Please log in to add a transaction')),
           );
+          isSaving.value = false;
           return;
         }
 
@@ -67,9 +71,9 @@ class AddTransactionScreen extends HookConsumerWidget {
 
         try {
          if (existingTransaction != null) {
-            await ref.read(transactionControllerProvider).updateTransaction(transaction);
+            ref.read(transactionControllerProvider).updateTransaction(transaction);
           } else {
-            await ref.read(transactionControllerProvider).addTransaction(transaction);
+            ref.read(transactionControllerProvider).addTransaction(transaction);
           }
           if (context.mounted) {
             Navigator.of(context).pop();
@@ -78,6 +82,7 @@ class AddTransactionScreen extends HookConsumerWidget {
             );
           }
         } catch (e) {
+          isSaving.value = false;
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Error: $e')),
@@ -138,7 +143,7 @@ class AddTransactionScreen extends HookConsumerWidget {
                 isDarkMode: isDarkMode,
               ),
               const SizedBox(height: 30),
-              _buildSubmitButton(saveTransaction, accentColor),
+              _buildSubmitButton(saveTransaction, accentColor, isSaving.value),
             ],
           ),
         ),
@@ -449,25 +454,35 @@ class AddTransactionScreen extends HookConsumerWidget {
     );
   }
 
-  Widget _buildSubmitButton(VoidCallback onPressed, Color accentColor) {
+  Widget _buildSubmitButton(VoidCallback onPressed, Color accentColor, bool isSaving) {
     return SizedBox(
       width: double.infinity,
       height: 60,
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: isSaving ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: accentColor,
+          disabledBackgroundColor: accentColor.withValues(alpha: 0.5),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           elevation: 5,
         ),
-        child: Text(
-          existingTransaction != null ? "UPDATE" : "CONTINUE",
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
+        child: isSaving
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.5,
+                ),
+              )
+            : Text(
+                existingTransaction != null ? "UPDATE" : "CONTINUE",
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
       ),
     );
   }

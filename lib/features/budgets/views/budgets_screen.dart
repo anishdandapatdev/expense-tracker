@@ -30,81 +30,98 @@ class BudgetsScreen extends ConsumerWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 24,
-            right: 24,
-            top: 24,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                existingCategory == null ? 'Create Budget' : 'Edit Budget',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+        bool isSaving = false;
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 24,
+                right: 24,
+                top: 24,
               ),
-              const SizedBox(height: 24),
-              if (existingCategory == null) ...[
-                DropdownButtonFormField<String>(
-                  initialValue: selectedCategory,
-                  decoration: const InputDecoration(
-                    labelText: 'Category',
-                    border: OutlineInputBorder(),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    existingCategory == null ? 'Create Budget' : 'Edit Budget',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  items:
-                      [
-                            'Food & Drink',
-                            'Transport',
-                            'Shopping',
-                            'Entertainment',
-                            'Utilities',
-                          ]
-                          .map(
-                            (c) => DropdownMenuItem(value: c, child: Text(c)),
-                          )
-                          .toList(),
-                  onChanged: (val) => selectedCategory = val!,
-                ),
-                const SizedBox(height: 16),
-              ],
-              TextField(
-                controller: amountController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Monthly Limit',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  const SizedBox(height: 24),
+                  if (existingCategory == null) ...[
+                    DropdownButtonFormField<String>(
+                      initialValue: selectedCategory,
+                      decoration: const InputDecoration(
+                        labelText: 'Category',
+                        border: OutlineInputBorder(),
+                      ),
+                      items:
+                          [
+                                'Food & Drink',
+                                'Transport',
+                                'Shopping',
+                                'Entertainment',
+                                'Utilities',
+                              ]
+                              .map(
+                                (c) => DropdownMenuItem(value: c, child: Text(c)),
+                              )
+                              .toList(),
+                      onChanged: (val) => selectedCategory = val!,
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                  TextField(
+                    controller: amountController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Monthly Limit',
+                      border: OutlineInputBorder(),
+                    ),
                   ),
-                  onPressed: () {
-                    final amount =
-                        double.tryParse(amountController.text) ?? 0.0;
-                    if (amount > 0 && user != null) {
-                      ref
-                          .read(budgetControllerProvider)
-                          .setBudgetLimit(user.uid, selectedCategory, amount);
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: const Text('Save Budget'),
-                ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: isSaving
+                          ? null
+                          : () {
+                              final amount =
+                                  double.tryParse(amountController.text) ?? 0.0;
+                              if (amount > 0 && user != null) {
+                                setDialogState(() => isSaving = true);
+                                ref
+                                    .read(budgetControllerProvider)
+                                    .setBudgetLimit(user.uid, selectedCategory, amount);
+                                Navigator.pop(context);
+                              }
+                            },
+                      child: isSaving
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text('Save Budget'),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
               ),
-              const SizedBox(height: 24),
-            ],
-          ),
+            );
+          },
         );
       },
     );

@@ -27,9 +27,12 @@ class AddFriendMoneyScreen extends HookConsumerWidget {
     final currentCurrency = ref.watch(currencyProvider);
 
     final accentColor = selectedType.value == 'Borrowed' ? const Color(0xFFEF4444) : const Color(0xFF007A3D);
+    final isSaving = useState<bool>(false);
 
     void saveRecord() async {
+      if (isSaving.value) return; // Prevent double-tap
       if (formKey.currentState!.validate()) {
+        isSaving.value = true;
         final amount = double.tryParse(amountController.text) ?? 0.0;
         final user = ref.read(authStateProvider).value;
 
@@ -37,6 +40,7 @@ class AddFriendMoneyScreen extends HookConsumerWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Please log in to add a record')),
           );
+          isSaving.value = false;
           return;
         }
 
@@ -54,7 +58,7 @@ class AddFriendMoneyScreen extends HookConsumerWidget {
         );
 
         try {
-          await ref.read(friendMoneyControllerProvider).addFriendMoney(record);
+          ref.read(friendMoneyControllerProvider).addFriendMoney(record);
           if (context.mounted) {
             Navigator.of(context).pop();
             ScaffoldMessenger.of(context).showSnackBar(
@@ -62,6 +66,7 @@ class AddFriendMoneyScreen extends HookConsumerWidget {
             );
           }
         } catch (e) {
+          isSaving.value = false;
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Error: $e')),
@@ -239,20 +244,30 @@ class AddFriendMoneyScreen extends HookConsumerWidget {
                 width: double.infinity,
                 height: 60,
                 child: ElevatedButton(
-                  onPressed: saveRecord,
+                  onPressed: isSaving.value ? null : saveRecord,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: accentColor,
+                    disabledBackgroundColor: accentColor.withValues(alpha: 0.5),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     elevation: 5,
                   ),
-                  child: const Text(
-                    "SAVE RECORD",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: isSaving.value
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : const Text(
+                          "SAVE RECORD",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                 ),
               ),
             ],

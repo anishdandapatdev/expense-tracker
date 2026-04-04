@@ -8,7 +8,8 @@ import 'package:expense_tracker/features/settings/controllers/currency_controlle
 import 'package:expense_tracker/features/settings/controllers/theme_controller.dart';
 import 'package:expense_tracker/features/settings/controllers/app_lock_controller.dart';
 import 'package:expense_tracker/features/settings/services/local_auth_service.dart';
-// lib\features\settings\services\local_auth_service.dart
+import 'package:expense_tracker/features/settings/services/data_export_service.dart';
+import 'package:expense_tracker/features/transactions/controllers/transaction_controller.dart';
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -66,6 +67,52 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         );
       },
     );
+  }
+
+  Future<void> _handleExport(BuildContext context) async {
+    final user = ref.read(authStateProvider).value;
+    if (user == null) return;
+
+    // Show a loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      // Fetch all transactions (the stream provider gives us the current list)
+      final transactionsAsync = ref.read(transactionsStreamProvider(user.uid));
+      final transactions = transactionsAsync.valueOrNull ?? [];
+
+      if (context.mounted) Navigator.pop(context); // Dismiss loading
+
+      if (transactions.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No transactions to export.')),
+          );
+        }
+        return;
+      }
+
+      // Export via share sheet
+      final exportService = DataExportService();
+      final success = await exportService.exportTransactions(transactions);
+
+      if (!success && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Export failed. Please try again.')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) Navigator.pop(context); // Dismiss loading on error
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -207,7 +254,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   trailing: Switch(
                     value: _notificationsEnabled,
-                    activeColor: const Color(0xFF0EA5E9),
+                    activeThumbColor: const Color(0xFF0EA5E9),
                     onChanged: (value) {
                       setState(() {
                         _notificationsEnabled = value;
@@ -265,7 +312,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       trailing: Switch(
                         value: isDarkMode,
-                        activeColor: const Color(0xFF0EA5E9),
+                        activeThumbColor: const Color(0xFF0EA5E9),
                         onChanged: (value) {
                           ref
                               .read(themeModeProvider.notifier)
@@ -306,7 +353,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   trailing: Switch(
                     value: ref.watch(appLockProvider),
-                    activeColor: const Color(0xFF0EA5E9),
+                    activeThumbColor: const Color(0xFF0EA5E9),
                     onChanged: (value) async {
                       final authService = ref.read(localAuthServiceProvider);
                       
@@ -328,9 +375,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Account / Logout Section
+              // More Options Section
               const Text(
-                'Account',
+                'More Options',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
@@ -348,22 +395,44 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                         ],
                 ),
-                child: ListTile(
-                  leading: const Icon(
-                    Icons.logout,
-                    color: Colors.redAccent,
-                    size: 22,
-                  ),
-                  title: const Text(
-                    'Logout',
-                    style: TextStyle(color: Colors.redAccent, fontSize: 15),
-                  ),
-                  onTap: () async {
-                    await ref.read(authControllerProvider.notifier).logout();
-                    if (context.mounted) {
-                      context.go('/login');
-                    }
-                  },
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(
+                        Icons.download_rounded,
+                        color: Colors.green,
+                        size: 22,
+                      ),
+                      title: const Text(
+                        'Export Data',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                      subtitle: const Text(
+                        'Download as CSV',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                      onTap: () => _handleExport(context),
+                    ),
+                    const Divider(height: 1, indent: 50, endIndent: 20),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.logout,
+                        color: Colors.redAccent,
+                        size: 22,
+                      ),
+                      title: const Text(
+                        'Logout',
+                        style: TextStyle(color: Colors.redAccent, fontSize: 15),
+                      ),
+                      onTap: () async {
+                        await ref.read(authControllerProvider.notifier).logout();
+                        if (context.mounted) {
+                          context.go('/login');
+                        }
+                      },
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(
