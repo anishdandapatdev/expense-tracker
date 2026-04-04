@@ -8,7 +8,11 @@ import 'package:expense_tracker/features/auth/repositories/auth_repository.dart'
 class SavingsGoalCard extends ConsumerWidget {
   const SavingsGoalCard({super.key});
 
-  void _showSetGoalDialog(BuildContext context, WidgetRef ref, double currentTarget) {
+  void _showSetGoalDialog(
+    BuildContext context,
+    WidgetRef ref,
+    double currentTarget,
+  ) {
     final amountController = TextEditingController(
       text: currentTarget > 0 ? currentTarget.toStringAsFixed(0) : '',
     );
@@ -34,10 +38,7 @@ class SavingsGoalCard extends ConsumerWidget {
             children: [
               const Text(
                 'Set Monthly Savings Goal',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 24),
               TextField(
@@ -59,7 +60,8 @@ class SavingsGoalCard extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   onPressed: () {
-                    final amount = double.tryParse(amountController.text) ?? 0.0;
+                    final amount =
+                        double.tryParse(amountController.text) ?? 0.0;
                     if (amount > 0 && user != null) {
                       ref
                           .read(savingsGoalControllerProvider)
@@ -85,18 +87,32 @@ class SavingsGoalCard extends ConsumerWidget {
     final moneyFormat = NumberFormat('#,##0', 'en_US');
 
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     // Dynamic Colors based on theme
     final titleColor = isDarkMode ? Colors.white : const Color(0xFF2E3A59);
     final cardColor = isDarkMode ? Theme.of(context).cardColor : Colors.white;
-    final borderColor = isDarkMode ? Colors.grey.shade800 : Colors.grey.shade100;
-    final shadowColor = isDarkMode ? Colors.black.withOpacity(0.3) : Colors.grey.withOpacity(0.05);
-    final iconBgColor = isDarkMode ? Colors.green.withOpacity(0.15) : const Color(0xFFE8F5E9);
+    final borderColor = isDarkMode
+        ? Colors.grey.shade800
+        : Colors.grey.shade100;
+    final shadowColor = isDarkMode
+        ? Colors.black.withValues(alpha: 0.3)
+        : Colors.grey.withValues(alpha: 0.05);
+    final iconBgColor = isDarkMode
+        ? Colors.green.withValues(alpha: 0.15)
+        : const Color(0xFFE8F5E9);
     final iconColor = isDarkMode ? Colors.greenAccent : const Color(0xFF2A7865);
-    final subTextColor = isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600;
-    final buttonBgColor = isDarkMode ? Colors.grey.shade800 : const Color(0xFFF3F4F6);
-    final progressBgColor = isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200;
-    final feedbackTextColor = isDarkMode ? Colors.grey.shade300 : Colors.grey.shade700;
+    final subTextColor = isDarkMode
+        ? Colors.grey.shade400
+        : Colors.grey.shade600;
+    final buttonBgColor = isDarkMode
+        ? Colors.grey.shade800
+        : const Color(0xFFF3F4F6);
+    final progressBgColor = isDarkMode
+        ? Colors.grey.shade800
+        : Colors.grey.shade200;
+    final feedbackTextColor = isDarkMode
+        ? Colors.grey.shade300
+        : Colors.grey.shade700;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +122,7 @@ class SavingsGoalCard extends ConsumerWidget {
           children: [
             Text(
               'Monthly Savings Goal',
-               style: TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: titleColor,
@@ -130,7 +146,12 @@ class SavingsGoalCard extends ConsumerWidget {
             ],
           ),
           child: progressAsync.when(
-            loading: () => const Center(child: Padding(padding: EdgeInsets.all(20.0), child: CircularProgressIndicator())),
+            loading: () => const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: CircularProgressIndicator(),
+              ),
+            ),
             error: (err, stack) => Center(child: Text('Error: $err')),
             data: (progress) {
               final hasGoal = progress.goal != null;
@@ -143,17 +164,17 @@ class SavingsGoalCard extends ConsumerWidget {
 
               if (hasGoal) {
                 if (currentSavings < 0) {
-                   progressColor = Colors.red;
-                   feedbackText = "You are overspending this month 📉";
+                  progressColor = Colors.red;
+                  feedbackText = "You are overspending this month 📉";
                 } else if (percentCompleted >= 1.0) {
-                   progressColor = Colors.blue;
-                   feedbackText = "Goal achieved! Keep it up 🚀";
+                  progressColor = Colors.blue;
+                  feedbackText = "Goal achieved! Keep it up 🚀";
                 } else if (percentCompleted < 0.3) {
-                   progressColor = Colors.orange;
-                   feedbackText = "A slow start, but you can do it! 💪";
+                  progressColor = Colors.orange;
+                  feedbackText = "A slow start, but you can do it! 💪";
                 } else if (percentCompleted < 0.7) {
-                   progressColor = Colors.blueAccent;
-                   feedbackText = "Doing good! Keep saving. 📈";
+                  progressColor = Colors.blueAccent;
+                  feedbackText = "Doing good! Keep saving. 📈";
                 }
               }
 
@@ -171,35 +192,58 @@ class SavingsGoalCard extends ConsumerWidget {
                               color: iconBgColor,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Icon(Icons.track_changes, color: iconColor, size: 20),
+                            child: Icon(
+                              Icons.track_changes,
+                              color: iconColor,
+                              size: 20,
+                            ),
                           ),
                           const SizedBox(width: 12),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                hasGoal ? 'Target: ${currency.symbol}${moneyFormat.format(targetAmount)}' : 'No Goal Set',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: titleColor),
+                                hasGoal
+                                    ? 'Target: ${currency.symbol}${moneyFormat.format(targetAmount)}'
+                                    : 'No Goal Set',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: titleColor,
+                                ),
                               ),
                               Text(
                                 'Saved: ${currency.symbol}${moneyFormat.format(currentSavings)}',
-                                style: TextStyle(color: subTextColor, fontSize: 13),
+                                style: TextStyle(
+                                  color: subTextColor,
+                                  fontSize: 13,
+                                ),
                               ),
                             ],
                           ),
                         ],
                       ),
                       TextButton(
-                        onPressed: () => _showSetGoalDialog(context, ref, targetAmount),
+                        onPressed: () =>
+                            _showSetGoalDialog(context, ref, targetAmount),
                         style: TextButton.styleFrom(
-                           backgroundColor: buttonBgColor,
-                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                           minimumSize: Size.zero,
-                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          backgroundColor: buttonBgColor,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
                         child: Text(
                           hasGoal ? 'Update' : 'Set Goal',
-                          style: TextStyle(fontSize: 12, color: isDarkMode ? Colors.white : Theme.of(context).primaryColor, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDarkMode
+                                ? Colors.white
+                                : Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],
@@ -211,7 +255,9 @@ class SavingsGoalCard extends ConsumerWidget {
                       child: LinearProgressIndicator(
                         value: percentCompleted,
                         backgroundColor: progressBgColor,
-                        valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          progressColor,
+                        ),
                         minHeight: 10,
                       ),
                     ),
@@ -221,21 +267,33 @@ class SavingsGoalCard extends ConsumerWidget {
                       children: [
                         Text(
                           feedbackText,
-                          style: TextStyle(color: feedbackTextColor, fontSize: 12, fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                            color: feedbackTextColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                         Text(
+                        Text(
                           '${(percentCompleted * 100).toStringAsFixed(0)}%',
-                          style: TextStyle(color: progressColor, fontSize: 14, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            color: progressColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
                   ] else ...[
-                     const SizedBox(height: 16),
-                     Text(
-                       "Set a savings goal to stay motivated!",
-                       style: TextStyle(color: subTextColor, fontSize: 13, fontStyle: FontStyle.italic),
-                     )
-                  ]
+                    const SizedBox(height: 16),
+                    Text(
+                      "Set a savings goal to stay motivated!",
+                      style: TextStyle(
+                        color: subTextColor,
+                        fontSize: 13,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
                 ],
               );
             },

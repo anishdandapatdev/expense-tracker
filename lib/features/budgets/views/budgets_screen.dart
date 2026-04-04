@@ -120,13 +120,17 @@ class BudgetsScreen extends ConsumerWidget {
     ); // No decimals to match mockup
 
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     // Dynamic Colors based on theme
     final titleColor = isDarkMode ? Colors.white : const Color(0xFF2E3A59);
     final cardBgColor = isDarkMode ? Theme.of(context).cardColor : Colors.white;
-    final progressBgColor = isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200;
+    final progressBgColor = isDarkMode
+        ? Colors.grey.shade800
+        : Colors.grey.shade200;
     final subTextColor = isDarkMode ? Colors.grey.shade400 : Colors.grey;
-    final shadowColor = isDarkMode ? Colors.black.withOpacity(0.3) : Colors.black.withOpacity(0.03);
+    final shadowColor = isDarkMode
+        ? Colors.black.withValues(alpha: 0.3)
+        : Colors.black.withValues(alpha: 0.03);
 
     return SafeArea(
       child: Padding(
@@ -140,7 +144,11 @@ class BudgetsScreen extends ConsumerWidget {
               children: [
                 Text(
                   'Budgets',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: titleColor),
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: titleColor,
+                  ),
                 ),
                 IconButton(
                   icon: Container(
@@ -164,13 +172,16 @@ class BudgetsScreen extends ConsumerWidget {
                 error: (err, stack) => Center(child: Text('Error: $err')),
                 data: (progressList) {
                   if (progressList.isEmpty) {
-                     return Center(
-                       child: TextButton(
-                         onPressed: () =>
-                             _showSetBudgetDialog(context, ref, null, null),
-                         child: Text('No budgets set. Tap + to add one.', style: TextStyle(color: subTextColor)),
-                       ),
-                     );
+                    return Center(
+                      child: TextButton(
+                        onPressed: () =>
+                            _showSetBudgetDialog(context, ref, null, null),
+                        child: Text(
+                          'No budgets set. Tap + to add one.',
+                          style: TextStyle(color: subTextColor),
+                        ),
+                      ),
+                    );
                   }
 
                   return ListView.builder(
@@ -287,9 +298,7 @@ class BudgetsScreen extends ConsumerWidget {
                                 ),
                                 RichText(
                                   text: TextSpan(
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                    ),
+                                    style: TextStyle(fontSize: 14),
                                     children: [
                                       TextSpan(
                                         text:
@@ -302,9 +311,7 @@ class BudgetsScreen extends ConsumerWidget {
                                       TextSpan(
                                         text:
                                             'of ${currency.symbol}${moneyFormat.format(bp.budget.limitAmount)}',
-                                        style: TextStyle(
-                                          color: subTextColor,
-                                        ),
+                                        style: TextStyle(color: subTextColor),
                                       ),
                                     ],
                                   ),

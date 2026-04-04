@@ -23,7 +23,10 @@ class FriendMoneyListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Money with Friends', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Money with Friends',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: const Color(0xFF2E3A59),
         elevation: 0,
         leading: const BackButton(color: Colors.white),
@@ -33,10 +36,12 @@ class FriendMoneyListScreen extends ConsumerWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const AddFriendMoneyScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const AddFriendMoneyScreen(),
+                ),
               );
             },
-          )
+          ),
         ],
       ),
       body: friendMoneyAsync.when(
@@ -58,25 +63,39 @@ class FriendMoneyListScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               final record = records[index];
               final isLent = record.type == 'lent';
-              final backgroundColor = isLent 
-                  ? (isDarkMode ? Colors.green.withOpacity(0.15) : const Color(0xFFE8F5E9)) 
-                  : (isDarkMode ? Colors.red.withOpacity(0.15) : const Color(0xFFFFEBEE));
-              final iconColor = isLent ? const Color(0xFF2E7D32) : const Color(0xFFC62828);
+              final backgroundColor = isLent
+                  ? (isDarkMode
+                        ? Colors.green.withValues(alpha: 0.15)
+                        : const Color(0xFFE8F5E9))
+                  : (isDarkMode
+                        ? Colors.red.withValues(alpha: 0.15)
+                        : const Color(0xFFFFEBEE));
+              final iconColor = isLent
+                  ? const Color(0xFF2E7D32)
+                  : const Color(0xFFC62828);
               final icon = isLent ? Icons.call_made : Icons.call_received;
 
               return Card(
                 elevation: 1,
                 margin: const EdgeInsets.only(bottom: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   leading: CircleAvatar(
                     backgroundColor: backgroundColor,
                     child: Icon(icon, color: iconColor, size: 20),
                   ),
                   title: Text(
                     record.friendName,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,15 +103,21 @@ class FriendMoneyListScreen extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Text(
                         DateFormat('MMM dd, yyyy').format(record.date),
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
                       ),
                       if (record.note != null && record.note!.isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(
                           record.note!,
-                          style: const TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontStyle: FontStyle.italic,
+                          ),
                         ),
-                      ]
+                      ],
                     ],
                   ),
                   trailing: Column(
@@ -110,7 +135,10 @@ class FriendMoneyListScreen extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Text(
                         isLent ? 'you will receive' : 'you owe',
-                        style: const TextStyle(fontSize: 10, color: Colors.grey),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey,
+                        ),
                       ),
                     ],
                   ),
@@ -120,7 +148,9 @@ class FriendMoneyListScreen extends ConsumerWidget {
                       context: context,
                       builder: (ctx) => AlertDialog(
                         title: const Text('Delete Record?'),
-                        content: const Text('Are you sure you want to delete this record?'),
+                        content: const Text(
+                          'Are you sure you want to delete this record?',
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx),
@@ -128,10 +158,15 @@ class FriendMoneyListScreen extends ConsumerWidget {
                           ),
                           TextButton(
                             onPressed: () {
-                              ref.read(friendMoneyControllerProvider).deleteFriendMoney(record.id);
+                              ref
+                                  .read(friendMoneyControllerProvider)
+                                  .deleteFriendMoney(record.id);
                               Navigator.pop(ctx);
                             },
-                            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                            child: const Text(
+                              'Delete',
+                              style: TextStyle(color: Colors.red),
+                            ),
                           ),
                         ],
                       ),

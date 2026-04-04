@@ -21,18 +21,32 @@ class MoneyFriendsSection extends ConsumerWidget {
       friendMoneyStreamProvider(user?.uid ?? ''),
     );
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     // Dynamic Colors based on theme
     final viewDetailsColor = isDarkMode ? Colors.white60 : Colors.black54;
     final titleColor = isDarkMode ? Colors.white : const Color(0xFF2E3A59);
     final cardBgColor = isDarkMode ? Theme.of(context).cardColor : Colors.white;
-    final borderColor = isDarkMode ? Colors.grey.shade800 : Colors.grey.shade100;
-    final shadowColor = isDarkMode ? Colors.black.withOpacity(0.3) : Colors.grey.withOpacity(0.05);
-    final dividerColor = isDarkMode ? Colors.grey.shade800 : const Color(0xFFF0F0F0);
-    final separatorColor = isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200;
-    final incomeColor = isDarkMode ? Colors.greenAccent : const Color(0xFF1E4E42);
-    final expenseColor = isDarkMode ? Colors.redAccent : const Color(0xFFE22144);
-    final iconIncomeColor = isDarkMode ? Colors.greenAccent : const Color(0xFF2A7865);
+    final borderColor = isDarkMode
+        ? Colors.grey.shade800
+        : Colors.grey.shade100;
+    final shadowColor = isDarkMode
+        ? Colors.black.withValues(alpha: 0.3)
+        : Colors.grey.withValues(alpha: 0.05);
+    final dividerColor = isDarkMode
+        ? Colors.grey.shade800
+        : const Color(0xFFF0F0F0);
+    final separatorColor = isDarkMode
+        ? Colors.grey.shade800
+        : Colors.grey.shade200;
+    final incomeColor = isDarkMode
+        ? Colors.greenAccent
+        : const Color(0xFF1E4E42);
+    final expenseColor = isDarkMode
+        ? Colors.redAccent
+        : const Color(0xFFE22144);
+    final iconIncomeColor = isDarkMode
+        ? Colors.greenAccent
+        : const Color(0xFF2A7865);
     final subTextColor = isDarkMode ? Colors.grey.shade400 : Colors.grey;
 
     return Column(
@@ -53,13 +67,18 @@ class MoneyFriendsSection extends ConsumerWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const AddFriendMoneyScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const AddFriendMoneyScreen(),
+                  ),
                 );
               },
               icon: const Icon(Icons.add, size: 16, color: Colors.blue),
               label: const Text(
                 'Add',
-                style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
@@ -123,25 +142,35 @@ class MoneyFriendsSection extends ConsumerWidget {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const FriendMoneyListScreen()),
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const FriendMoneyListScreen(),
+                            ),
                           );
                         },
                         child: Row(
                           children: [
                             Text(
                               'View Details',
-                              style: TextStyle(fontSize: 12, color: viewDetailsColor),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: viewDetailsColor,
+                              ),
                             ),
-                            Icon(Icons.chevron_right, size: 16, color: viewDetailsColor),
+                            Icon(
+                              Icons.chevron_right,
+                              size: 16,
+                              color: viewDetailsColor,
+                            ),
                           ],
                         ),
-                      )
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Divider(height: 1, color: dividerColor),
                   const SizedBox(height: 16),
-                  
+
                   // Middle part: Amounts
                   Row(
                     children: [
@@ -151,11 +180,18 @@ class MoneyFriendsSection extends ConsumerWidget {
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.call_made, color: iconIncomeColor, size: 16),
+                                Icon(
+                                  Icons.call_made,
+                                  color: iconIncomeColor,
+                                  size: 16,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   'You will receive',
-                                  style: TextStyle(color: subTextColor, fontSize: 13),
+                                  style: TextStyle(
+                                    color: subTextColor,
+                                    fontSize: 13,
+                                  ),
                                 ),
                               ],
                             ),
@@ -182,7 +218,11 @@ class MoneyFriendsSection extends ConsumerWidget {
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.call_received, color: expenseColor, size: 16),
+                                Icon(
+                                  Icons.call_received,
+                                  color: expenseColor,
+                                  size: 16,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   'You Owe',
@@ -212,17 +252,22 @@ class MoneyFriendsSection extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Bottom part: Action Buttons
                   Row(
                     children: [
                       Expanded(
                         child: InkWell(
                           onTap: () {
-                             Navigator.push(
-                               context,
-                               MaterialPageRoute(builder: (context) => const AddFriendMoneyScreen(initialType: 'Lent')),
-                             );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const AddFriendMoneyScreen(
+                                      initialType: 'Lent',
+                                    ),
+                              ),
+                            );
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 12),
@@ -235,13 +280,30 @@ class MoneyFriendsSection extends ConsumerWidget {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.call_made, color: Colors.white, size: 16),
+                                    Icon(
+                                      Icons.call_made,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
                                     SizedBox(width: 4),
-                                    Text('I Lent', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                                    Text(
+                                      'I Lent',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ],
                                 ),
                                 SizedBox(height: 2),
-                                Text('Add Record', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                                Text(
+                                  'Add Record',
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 11,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -251,10 +313,15 @@ class MoneyFriendsSection extends ConsumerWidget {
                       Expanded(
                         child: InkWell(
                           onTap: () {
-                             Navigator.push(
-                               context,
-                               MaterialPageRoute(builder: (context) => const AddFriendMoneyScreen(initialType: 'Borrowed')),
-                             );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const AddFriendMoneyScreen(
+                                      initialType: 'Borrowed',
+                                    ),
+                              ),
+                            );
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 12),
@@ -267,14 +334,36 @@ class MoneyFriendsSection extends ConsumerWidget {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.call_received, color: Color.fromARGB(255, 255, 255, 255), size: 16),
+                                    Icon(
+                                      Icons.call_received,
+                                      color: Color.fromARGB(255, 255, 255, 255),
+                                      size: 16,
+                                    ),
                                     SizedBox(width: 4),
-                                    Text('I Borrowed', style: TextStyle(color: Color.fromARGB(255, 255, 255, 255), fontSize: 13, fontWeight: FontWeight.bold)),
+                                    Text(
+                                      'I Borrowed',
+                                      style: TextStyle(
+                                        color: Color.fromARGB(
+                                          255,
+                                          255,
+                                          255,
+                                          255,
+                                        ),
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ],
                                 ),
                                 SizedBox(height: 2),
-                                Text('Add Record', style: TextStyle(color: Color.fromARGB(255, 236, 236, 236), fontSize: 11)),
-                              ], 
+                                Text(
+                                  'Add Record',
+                                  style: TextStyle(
+                                    color: Color.fromARGB(255, 236, 236, 236),
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),

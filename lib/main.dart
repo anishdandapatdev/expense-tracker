@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'firebase_options.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routing/app_router.dart'; // Ensure this points to where routerProvider is defined
+import 'features/settings/views/app_lock_wrapper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +36,11 @@ class SpendWiseApp extends ConsumerWidget {
       themeMode: ThemeMode.system, // Automatically switch based on device settings
       routerConfig: router, // Pass the dynamic router here instead of the static appRouter
       debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        return AppLockWrapper(
+          child: child!,
+        );
+      },
     );
   }
 }
