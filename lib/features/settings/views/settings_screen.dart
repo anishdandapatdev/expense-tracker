@@ -10,6 +10,7 @@ import 'package:expense_tracker/features/settings/controllers/app_lock_controlle
 import 'package:expense_tracker/features/settings/services/local_auth_service.dart';
 import 'package:expense_tracker/features/settings/services/data_export_service.dart';
 import 'package:expense_tracker/features/transactions/controllers/transaction_controller.dart';
+import 'package:expense_tracker/features/notifications/controllers/notification_controller.dart';
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -18,7 +19,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  bool _notificationsEnabled = true;
 
   Future<void> _showEditNameDialog(
     BuildContext context,
@@ -232,37 +232,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
-              Container(
-                decoration: BoxDecoration(
-                  color: cardBgColor,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: isDarkMode
-                      ? []
-                      : [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                ),
-                child: ListTile(
-                  leading: const Icon(Icons.notifications_none, size: 22),
-                  title: const Text(
-                    'Notifications',
-                    style: TextStyle(fontSize: 15),
-                  ),
-                  trailing: Switch(
-                    value: _notificationsEnabled,
-                    activeThumbColor: const Color(0xFF0EA5E9),
-                    onChanged: (value) {
-                      setState(() {
-                        _notificationsEnabled = value;
-                      });
-                    },
-                  ),
-                ),
-              ),
+              _buildNotificationsCard(cardBgColor, isDarkMode),
               const SizedBox(height: 24),
 
               // Preferences Section
@@ -443,5 +413,187 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildNotificationsCard(Color cardBgColor, bool isDarkMode) {
+    final notifSettings = ref.watch(notificationSettingsProvider);
+    final notifController = ref.read(notificationSettingsProvider.notifier);
+
+    final isEnabled = notifSettings.notificationsEnabled;
+    final timeLabel =
+        '${notifSettings.reminderTime.hourOfPeriod == 0 ? 12 : notifSettings.reminderTime.hourOfPeriod}:${notifSettings.reminderTime.minute.toString().padLeft(2, '0')} ${notifSettings.reminderTime.period == DayPeriod.am ? 'AM' : 'PM'}';
+
+    return Container(
+      decoration: BoxDecoration(
+        color: cardBgColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: isDarkMode
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+      ),
+      child: Column(
+        children: [
+          // Master Toggle
+          ListTile(
+            leading: const Icon(Icons.notifications_none, size: 22),
+            title: const Text(
+              'Notifications',
+              style: TextStyle(fontSize: 15),
+            ),
+            trailing: Switch(
+              value: isEnabled,
+              activeThumbColor: const Color(0xFF0EA5E9),
+              onChanged: (value) {
+                notifController.toggleNotifications(value);
+              },
+            ),
+          ),
+
+          // Sub-settings (only visible when master toggle is on)
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 300),
+            crossFadeState:
+                isEnabled ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+            secondChild: const SizedBox.shrink(),
+            firstChild: Column(
+              children: [
+                const Divider(height: 1, indent: 50, endIndent: 20),
+                // Daily Reminder toggle
+                ListTile(
+                  leading: const Icon(Icons.alarm, size: 22),
+                  title: const Text(
+                    'Daily Reminder',
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  subtitle: notifSettings.dailyReminderEnabled
+                      ? GestureDetector(
+                          onTap: () => _showTimePickerDialog(
+                            notifSettings.reminderTime,
+                            notifController,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                timeLabel,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF0EA5E9),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.edit,
+                                size: 13,
+                                color: Color(0xFF0EA5E9),
+                              ),
+                            ],
+                          ),
+                        )
+                      : null,
+                  trailing: Switch(
+                    value: notifSettings.dailyReminderEnabled,
+                    activeThumbColor: const Color(0xFF0EA5E9),
+                    onChanged: (value) {
+                      notifController.toggleDailyReminder(value);
+                    },
+                  ),
+                ),
+                const Divider(height: 1, indent: 50, endIndent: 20),
+                // Budget Alerts toggle
+                ListTile(
+                  leading: const Icon(Icons.warning_amber_rounded, size: 22),
+                  title: const Text(
+                    'Budget Alerts',
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  subtitle: const Text(
+                    'Alert at 80% of budget',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  trailing: Switch(
+                    value: notifSettings.budgetAlertsEnabled,
+                    activeThumbColor: const Color(0xFF0EA5E9),
+                    onChanged: (value) {
+                      notifController.toggleBudgetAlerts(value);
+                    },
+                  ),
+                ),
+                const Divider(height: 1, indent: 50, endIndent: 20),
+                // Weekly Summary toggle
+                ListTile(
+                  leading: const Icon(Icons.bar_chart_rounded, size: 22),
+                  title: const Text(
+                    'Weekly Summary',
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  subtitle: const Text(
+                    'Every Sunday at 7 PM',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  trailing: Switch(
+                    value: notifSettings.weeklySummaryEnabled,
+                    activeThumbColor: const Color(0xFF0EA5E9),
+                    onChanged: (value) {
+                      notifController.toggleWeeklySummary(value);
+                    },
+                  ),
+                ),
+                const Divider(height: 1, indent: 50, endIndent: 20),
+                // Savings Goal Milestones toggle
+                ListTile(
+                  leading: const Icon(Icons.emoji_events_rounded, size: 22),
+                  title: const Text(
+                    'Savings Milestones',
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  subtitle: const Text(
+                    'At 25%, 50%, 75%, 100%',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  trailing: Switch(
+                    value: notifSettings.savingsGoalAlertsEnabled,
+                    activeThumbColor: const Color(0xFF0EA5E9),
+                    onChanged: (value) {
+                      notifController.toggleSavingsGoalAlerts(value);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showTimePickerDialog(
+    TimeOfDay currentTime,
+    NotificationController controller,
+  ) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: currentTime,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+                  primary: const Color(0xFF0EA5E9),
+                ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      controller.setReminderTime(picked);
+    }
   }
 }

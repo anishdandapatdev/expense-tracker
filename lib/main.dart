@@ -6,6 +6,7 @@ import 'firebase_options.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routing/app_router.dart'; // Ensure this points to where routerProvider is defined
 import 'features/settings/views/app_lock_wrapper.dart';
+import 'features/notifications/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,6 +19,11 @@ void main() async {
     persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
+
+  // Initialize the Notification Service
+  final notificationService = NotificationService();
+  await notificationService.init();
+  await notificationService.requestPermission();
   
   runApp(
     // ProviderScope is required for Riverpod

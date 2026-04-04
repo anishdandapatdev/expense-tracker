@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/features/settings/controllers/currency_controller.dart';
 import 'package:expense_tracker/features/settings/views/currency_selection_screen.dart';
 import 'package:expense_tracker/features/auth/repositories/auth_repository.dart';
+import 'package:expense_tracker/features/notifications/controllers/notification_controller.dart';
+import 'package:expense_tracker/features/notifications/views/notification_screen.dart';
 
 class HeaderHomescreen extends ConsumerWidget {
   final String? email;
@@ -13,6 +15,7 @@ class HeaderHomescreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currency = ref.watch(currencyProvider);
     final user = ref.watch(authStateProvider).value;
+    final unreadCount = ref.watch(unreadNotificationCountProvider);
     
     // Grab Google Display Name if available AND not empty
     String displayName = 'User';
@@ -92,22 +95,56 @@ class HeaderHomescreen extends ConsumerWidget {
           ],
         ),
         const Spacer(),
-        // Notification Icon fixed from the user's request
-        CircleAvatar(
-          backgroundColor: notifBgColor,
-          radius: 22,
-          child: IconButton(
-            icon: Icon(
-              Icons.notifications_outlined,
-              color: notifIconColor,
-              size: 24,
+        // Notification Icon with unread badge
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            CircleAvatar(
+              backgroundColor: notifBgColor,
+              radius: 22,
+              child: IconButton(
+                icon: Icon(
+                  Icons.notifications_outlined,
+                  color: notifIconColor,
+                  size: 24,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const NotificationScreen(),
+                    ),
+                  );
+                },
+              ),
             ),
-            onPressed: () {
-              // Action for notifications
-            },
-          ),
+            // Unread badge
+            if (unreadCount > 0)
+              Positioned(
+                top: -2,
+                right: -2,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFEF4444),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      unreadCount > 9 ? '9+' : '$unreadCount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ],
     );
   }
-}
+}
