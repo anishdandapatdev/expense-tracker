@@ -28,6 +28,12 @@ class AppTheme {
         iconTheme: IconThemeData(color: Colors.black87),
         titleTextStyle: TextStyle(color: Colors.black87, fontSize: 20, fontWeight: FontWeight.bold),
       ),
+      // SnackBars float above the bottom bar — FAB stays docked and never moves
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+        insetPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
     );
   }
 
@@ -54,6 +60,12 @@ class AppTheme {
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.white),
         titleTextStyle: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+      ),
+      // SnackBars float above the bottom bar — FAB stays docked and never moves
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+        insetPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
     );
   }
