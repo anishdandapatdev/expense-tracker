@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'firebase_options.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routing/app_router.dart'; // Ensure this points to where routerProvider is defined
@@ -19,6 +20,9 @@ void main() async {
     persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
+
+  // Initialize Hive for local notification history storage
+  await Hive.initFlutter();
 
   // Initialize the Notification Service
   final notificationService = NotificationService();

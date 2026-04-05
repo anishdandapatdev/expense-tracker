@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tz_data;
 
 /// Riverpod provider for the notification service singleton
 final notificationServiceProvider = Provider<NotificationService>((ref) {
@@ -25,7 +25,7 @@ class NotificationService {
 
   /// Initialize the notification plugin and timezone data.
   Future<void> init() async {
-    tz.initializeTimeZones();
+    tz_data.initializeTimeZones();
 
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
@@ -33,7 +33,6 @@ class NotificationService {
 
     const initSettings = InitializationSettings(android: androidSettings);
 
-    // FIX: The required named parameter is 'settings'
     await _plugin.initialize(
       settings: initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,

@@ -3,6 +3,7 @@ import 'package:expense_tracker/features/savings_goal/models/savings_goal_model.
 import 'package:expense_tracker/features/savings_goal/repositories/savings_goal_repository.dart';
 import 'package:expense_tracker/features/transactions/controllers/transaction_controller.dart';
 import 'package:expense_tracker/features/auth/repositories/auth_repository.dart';
+import 'package:expense_tracker/features/notifications/controllers/notification_controller.dart';
 
 class SavingsProgress {
   final SavingsGoalModel? goal;
@@ -65,6 +66,22 @@ final savingsProgressProvider =
   }
 
   final currentSavings = totalIncome - totalExpense;
+
+  // Trigger savings goal milestone notifications if goal exists
+  if (goal != null && currentSavings > 0 && goal.targetAmount > 0) {
+    // Use Future.microtask to avoid modifying providers during build
+    Future.microtask(() {
+      try {
+        ref.read(notificationSettingsProvider.notifier).checkSavingsGoalMilestone(
+          goalName: 'Monthly Savings',
+          savedAmount: currentSavings,
+          targetAmount: goal.targetAmount,
+        );
+      } catch (_) {
+        // Silently ignore if notification controller not ready
+      }
+    });
+  }
 
   return AsyncValue.data(SavingsProgress(
     goal: goal,

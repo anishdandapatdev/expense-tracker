@@ -7,7 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:expense_tracker/features/notifications/services/notification_service.dart';
+import 'package:expense_tracker/features/notifications/controllers/notification_controller.dart';
+import 'package:expense_tracker/features/budgets/controllers/budget_controller.dart';
 import 'package:expense_tracker/features/settings/controllers/currency_controller.dart';
 import 'package:expense_tracker/core/utils/category_utils.dart';
 
@@ -81,7 +82,19 @@ class AddTransactionScreen extends HookConsumerWidget {
 
           // Budget Alert Check: Fire notification if expense pushes category past 80%
           if (transactionType == 'expense') {
-            _checkBudgetAlert(ref, transaction);
+            final budgetProgressAsync = ref.read(budgetProgressProvider);
+            final budgetList = budgetProgressAsync.valueOrNull ?? [];
+            for (final bp in budgetList) {
+              if (bp.budget.category == transaction.category ||
+                  (bp.budget.category == 'Food & Drink' && transaction.category == 'Food')) {
+                ref.read(notificationSettingsProvider.notifier).checkBudgetAndNotify(
+                  category: bp.budget.category,
+                  spent: bp.spentAmount + transaction.amount,
+                  limit: bp.budget.limitAmount,
+                );
+                break;
+              }
+            }
           }
 
           if (context.mounted) {
@@ -526,28 +539,3 @@ class AddTransactionScreen extends HookConsumerWidget {
     }
   }
 }
-Future<void> _checkBudgetAlert(WidgetRef ref, TransactionModel transaction) async {
-    final String category = transaction.category;
-
-    // 
-    // Example: final double budgetLimit = ref.read(budgetProvider).getLimit(category);
-    final double budgetLimit = 1000.0; // Placeholder limit
-    final double totalSpent = 850.0;   // Placeholder spent amount
-
-    // Prevent division by zero if budget isn't set
-    if (budgetLimit <= 0) return;
-
-    final double percentUsed = (totalSpent / budgetLimit) * 100;
-
-    // Check if spending exceeds 80% threshold
-    if (percentUsed >= 80.0) {
-      // Access the NotificationService using the Riverpod provider
-      final notificationService = ref.read(notificationServiceProvider);
-      
-      // Trigger the local notification
-      await notificationService.showBudgetAlert(
-        category: category,
-        percentUsed: percentUsed.toInt(),
-      );
-    }
-  }

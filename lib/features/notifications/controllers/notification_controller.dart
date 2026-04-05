@@ -43,21 +43,44 @@ class NotificationSettings {
   }
 }
 
-// ─── Riverpod Provider ────────────────────────────────────────────
+// ─── Riverpod Providers ───────────────────────────────────────────
 
 final notificationSettingsProvider =
     StateNotifierProvider<NotificationController, NotificationSettings>((ref) {
   final service = ref.read(notificationServiceProvider);
-  return NotificationController(service);
+  return NotificationController(service, ref);
 });
 
 /// Provides the live unread notification count.
-final unreadNotificationCountProvider = StateProvider<int>((ref) => 0);
+/// Automatically loads from Hive on first read.
+final unreadNotificationCountProvider =
+    StateNotifierProvider<UnreadCountNotifier, int>((ref) {
+  return UnreadCountNotifier();
+});
+
+/// Notifier that auto-loads unread count from Hive storage on creation.
+class UnreadCountNotifier extends StateNotifier<int> {
+  UnreadCountNotifier() : super(0) {
+    _loadInitialCount();
+  }
+
+  Future<void> _loadInitialCount() async {
+    final count = await NotificationStorage.getUnreadCount();
+    if (mounted) {
+      state = count;
+    }
+  }
+
+  void setCount(int count) {
+    state = count;
+  }
+}
 
 // ─── Controller ───────────────────────────────────────────────────
 
 class NotificationController extends StateNotifier<NotificationSettings> {
   final NotificationService _service;
+  final Ref _ref;
 
   // SharedPreferences keys
   static const _keyEnabled = 'notif_enabled';
@@ -68,7 +91,7 @@ class NotificationController extends StateNotifier<NotificationSettings> {
   static const _keyWeeklySummary = 'notif_weekly_summary';
   static const _keySavingsGoal = 'notif_savings_goal';
 
-  NotificationController(this._service)
+  NotificationController(this._service, this._ref)
       : super(const NotificationSettings()) {
     _loadSettings();
   }
@@ -107,6 +130,12 @@ class NotificationController extends StateNotifier<NotificationSettings> {
     await prefs.setBool(_keyBudgetAlerts, state.budgetAlertsEnabled);
     await prefs.setBool(_keyWeeklySummary, state.weeklySummaryEnabled);
     await prefs.setBool(_keySavingsGoal, state.savingsGoalAlertsEnabled);
+  }
+
+  /// Helper to update the unread badge count across the app.
+  void _refreshUnreadCount() async {
+    final count = await NotificationStorage.getUnreadCount();
+    _ref.read(unreadNotificationCountProvider.notifier).setCount(count);
   }
 
   /// Master toggle — enables/disables all notifications.
@@ -201,6 +230,8 @@ class NotificationController extends StateNotifier<NotificationSettings> {
           timestamp: DateTime.now(),
         ),
       );
+
+      _refreshUnreadCount();
     }
   }
 
@@ -259,6 +290,8 @@ class NotificationController extends StateNotifier<NotificationSettings> {
             timestamp: DateTime.now(),
           ),
         );
+
+        _refreshUnreadCount();
       }
     }
   }

@@ -11,26 +11,14 @@ class NotificationScreen extends ConsumerStatefulWidget {
   ConsumerState<NotificationScreen> createState() => _NotificationScreenState();
 }
 
-class _NotificationScreenState extends ConsumerState<NotificationScreen>
-    with SingleTickerProviderStateMixin {
+class _NotificationScreenState extends ConsumerState<NotificationScreen> {
   List<NotificationItem> _notifications = [];
   bool _isLoading = true;
-  late AnimationController _animController;
 
   @override
   void initState() {
     super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
     _loadNotifications();
-  }
-
-  @override
-  void dispose() {
-    _animController.dispose();
-    super.dispose();
   }
 
   Future<void> _loadNotifications() async {
@@ -40,14 +28,13 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen>
         _notifications = items;
         _isLoading = false;
       });
-      _animController.forward();
       _updateUnreadCount();
     }
   }
 
   void _updateUnreadCount() {
     final unread = _notifications.where((n) => !n.isRead).length;
-    ref.read(unreadNotificationCountProvider.notifier).state = unread;
+    ref.read(unreadNotificationCountProvider.notifier).setCount(unread);
   }
 
   Future<void> _markAllAsRead() async {
