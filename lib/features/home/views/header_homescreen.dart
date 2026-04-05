@@ -62,10 +62,7 @@ class HeaderHomescreen extends ConsumerWidget {
             const SizedBox(height: 4),
             InkWell(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CurrencySelectionScreen()),
-                );
+                showCurrencyPickerSheet(context, ref);
               },
               borderRadius: BorderRadius.circular(8),
               child: Container(

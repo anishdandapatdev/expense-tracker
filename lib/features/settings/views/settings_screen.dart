@@ -11,6 +11,7 @@ import 'package:expense_tracker/features/settings/services/local_auth_service.da
 import 'package:expense_tracker/features/settings/services/data_export_service.dart';
 import 'package:expense_tracker/features/transactions/controllers/transaction_controller.dart';
 import 'package:expense_tracker/features/notifications/controllers/notification_controller.dart';
+import 'package:expense_tracker/features/settings/views/currency_selection_screen.dart';
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -271,7 +272,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         Icons.chevron_right,
                         color: Colors.grey,
                       ),
-                      onTap: () => context.push('/currency-setup'),
+                      onTap: () => showCurrencyPickerSheet(context, ref),
                     ),
                     const Divider(height: 1, indent: 50, endIndent: 20),
                     ListTile(
