@@ -8,6 +8,7 @@ import 'core/theme/app_theme.dart';
 import 'core/routing/app_router.dart'; // Ensure this points to where routerProvider is defined
 import 'features/settings/views/app_lock_wrapper.dart';
 import 'features/notifications/services/notification_service.dart';
+import 'features/settings/controllers/theme_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,7 +51,7 @@ class SpendWiseApp extends ConsumerWidget {
       title: 'SpendWise',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system, // Automatically switch based on device settings
+      themeMode: ref.watch(themeModeProvider),
       routerConfig: router, // Pass the dynamic router here instead of the static appRouter
       debugShowCheckedModeBanner: false,
       builder: (context, child) {

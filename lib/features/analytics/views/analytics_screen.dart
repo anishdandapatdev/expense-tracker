@@ -21,103 +21,116 @@ class AnalyticsScreen extends ConsumerWidget {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            const Text(
-              'Analytics',
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-            ),
-            const Text(
-              'Your spending insights',
-              style: TextStyle(color: Colors.grey, fontSize: 16),
-            ),
-            const SizedBox(height: 24),
-
-            // Timeframe Toggle (Restyled to match screenshot)
-            Center(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: isDarkMode ? Colors.white24 : Colors.black12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with padding
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                const Text(
+                  'Analytics',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: ['Weekly', 'Monthly', 'Yearly'].map((timeframe) {
-                    final isSelected = selectedTimeframe == timeframe;
-                    return GestureDetector(
-                      onTap: () => ref.read(timeframeProvider.notifier).state = timeframe,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-                        decoration: BoxDecoration(
-                          border: isSelected 
-                              ? Border.all(color: isDarkMode ? Colors.white : Theme.of(context).primaryColor, width: 2) 
-                              : Border.all(color: Colors.transparent, width: 2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          timeframe,
-                          style: TextStyle(
-                            color: isSelected 
-                                ? (isDarkMode ? Colors.white : Theme.of(context).primaryColor)
-                                : Colors.grey,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                            fontSize: 13,
+                const Text(
+                  'Your spending insights',
+                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                ),
+                const SizedBox(height: 24),
+
+                // Timeframe Toggle
+                Center(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: isDarkMode ? Colors.white24 : Colors.black12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: ['Weekly', 'Monthly', 'Yearly'].map((timeframe) {
+                        final isSelected = selectedTimeframe == timeframe;
+                        return GestureDetector(
+                          onTap: () => ref.read(timeframeProvider.notifier).state = timeframe,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                            decoration: BoxDecoration(
+                              border: isSelected 
+                                  ? Border.all(color: isDarkMode ? Colors.white : Theme.of(context).primaryColor, width: 2) 
+                                  : Border.all(color: Colors.transparent, width: 2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              timeframe,
+                              style: TextStyle(
+                                color: isSelected 
+                                    ? (isDarkMode ? Colors.white : Theme.of(context).primaryColor)
+                                    : Colors.grey,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                fontSize: 13,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 24),
+              ],
             ),
-            const SizedBox(height: 24),
+          ),
 
-            // Main List Output
-            Expanded(
-              child: analyticsAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (err, stack) => Center(child: Text('Error: $err')),
-                data: (data) {
-                  final net = data.totalIncome - data.totalExpense;
+          // Main scrollable content — charts use full width (no horizontal padding)
+          Expanded(
+            child: analyticsAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(child: Text('Error: $err')),
+              data: (data) {
+                final net = data.totalIncome - data.totalExpense;
 
-                  return ListView(
-                    physics: const BouncingScrollPhysics(),
-                    children: [
-                      // Summary Cards
-                      SummaryCardsRow(
-                        income: data.totalIncome, 
-                        expense: data.totalExpense, 
-                        net: net, 
-                        currencySymbol: currency.symbol
+                return ListView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.zero,
+                  children: [
+                    // Summary Cards (with padding)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: SummaryCardsRow(
+                        income: data.totalIncome,
+                        expense: data.totalExpense,
+                        net: net,
+                        currencySymbol: currency.symbol,
                       ),
-                      const SizedBox(height: 24),
+                    ),
+                    const SizedBox(height: 24),
 
-                      // Grouped Bar Chart (Income vs Expense vs Balance)
-                      SpendingBarChart(monthlyTrend: data.monthlyTrend),
-                      const SizedBox(height: 24),
+                    // Bar Chart — full width, no side margins
+                    SpendingBarChart(monthlyTrend: data.monthlyTrend),
+                    const SizedBox(height: 24),
 
-                      // Donut Chart (Spending By Category) (Kept exactly as requested)
-                      SpendingDonutChart(categorySpending: data.categorySpending),
-                      const SizedBox(height: 24),
+                    // Donut Chart (with padding)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: SpendingDonutChart(categorySpending: data.categorySpending),
+                    ),
+                    const SizedBox(height: 24),
 
-                      // Line Chart (Monthly Trend)
-                      TrendLineChart(monthlyTrend: data.monthlyTrend),
-                      const SizedBox(height: 24),
+                    // Line Chart — full width, no side margins
+                    TrendLineChart(monthlyTrend: data.monthlyTrend),
+                    const SizedBox(height: 24),
 
-                      // Weekly Comparison
-                      WeeklyComparisonChart(data: data.weeklyComparison),
-                      const SizedBox(height: 48),
-                    ],
-                  );
-                },
-              ),
+                    // Weekly Comparison — full width
+                    WeeklyComparisonChart(data: data.weeklyComparison),
+                    const SizedBox(height: 48),
+                  ],
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

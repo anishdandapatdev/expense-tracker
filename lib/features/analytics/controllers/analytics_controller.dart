@@ -54,6 +54,8 @@ final analyticsDataProvider = Provider.family<AsyncValue<AnalyticsData>, String>
     double lastWeekExp = 0;
 
     DateTime now = DateTime.now();
+
+    // Week starts on Sunday
     int daysSinceSunday = now.weekday == 7 ? 0 : now.weekday;
     DateTime thisWeekSunday = DateTime(now.year, now.month, now.day).subtract(Duration(days: daysSinceSunday));
     DateTime nextWeekSunday = thisWeekSunday.add(const Duration(days: 7));
@@ -62,60 +64,80 @@ final analyticsDataProvider = Provider.family<AsyncValue<AnalyticsData>, String>
     DateTime startDate;
 
     if (timeframe == 'Weekly') {
-      startDate = now.subtract(const Duration(days: 6)); // Last 7 days including today
+      // Week: Sunday to Saturday (7 days starting from this week's Sunday)
+      startDate = thisWeekSunday;
     } else if (timeframe == 'Monthly') {
-      startDate = now.subtract(const Duration(days: 29)); // Last 30 days including today
+      // Month: 1st to last day of current month
+      startDate = DateTime(now.year, now.month, 1);
     } else { 
-      startDate = DateTime(now.year, now.month - 11, 1); // Last 12 months
+      // Yearly: Jan 1 to Dec 31 of current year
+      startDate = DateTime(now.year, 1, 1);
     }
     
     // Create zero-filled map for the timeline
     Map<String, Map<String, double>> trend = {};
     
     if (timeframe == 'Weekly') {
-      for (int i = 6; i >= 0; i--) {
-        DateTime d = now.subtract(Duration(days: i));
-        String key = DateFormat('EEE').format(d); // e.g. Mon, Tue
+      // Sunday to Saturday (7 days)
+      for (int i = 0; i < 7; i++) {
+        DateTime d = thisWeekSunday.add(Duration(days: i));
+        String key = DateFormat('MMM d').format(d); // e.g. "Mar 30", "Apr 1"
         trend[key] = {'income': 0.0, 'expense': 0.0};
       }
     } else if (timeframe == 'Monthly') {
-      for (int i = 29; i >= 0; i--) {
-        DateTime d = now.subtract(Duration(days: i));
-        String key = DateFormat('MMM dd').format(d); // e.g. Apr 05
+      // Day 1 to last day of current month
+      final lastDay = DateTime(now.year, now.month + 1, 0).day;
+      for (int i = 1; i <= lastDay; i++) {
+        DateTime d = DateTime(now.year, now.month, i);
+        String key = DateFormat('MMM d').format(d); // e.g. "Apr 1", "Apr 2"
         trend[key] = {'income': 0.0, 'expense': 0.0};
       }
     } else {
-      for (int i = 11; i >= 0; i--) {
-        DateTime d = DateTime(now.year, now.month - i, 1);
-        String key = DateFormat('MMM-yyyy').format(d); // e.g. Apr-2026
+      // Jan to Dec of current year
+      for (int m = 1; m <= 12; m++) {
+        DateTime d = DateTime(now.year, m, 1);
+        String key = DateFormat('MMM-yyyy').format(d); // e.g. "Jan-2026"
         trend[key] = {'income': 0.0, 'expense': 0.0};
       }
     }
 
     // Now process transactions
     for (var t in transactions) {
-  // Comparison logic
-  if (t.date.compareTo(lastWeekSunday) >= 0 &&
-      t.date.compareTo(thisWeekSunday) < 0) {
-    if (t.type == 'income') {
-      lastWeekInc += t.amount;
-    } else {
-      lastWeekExp += t.amount;
-    }
-  } else if (t.date.compareTo(thisWeekSunday) >= 0 &&
-      t.date.compareTo(nextWeekSunday) < 0) {
-    if (t.type == 'income') {
-      thisWeekInc += t.amount;
-    } else {
-      thisWeekExp += t.amount;
-    }
-  }
+      // Comparison logic (This Week vs Last Week)
+      if (t.date.compareTo(lastWeekSunday) >= 0 &&
+          t.date.compareTo(thisWeekSunday) < 0) {
+        if (t.type == 'income') {
+          lastWeekInc += t.amount;
+        } else {
+          lastWeekExp += t.amount;
+        }
+      } else if (t.date.compareTo(thisWeekSunday) >= 0 &&
+          t.date.compareTo(nextWeekSunday) < 0) {
+        if (t.type == 'income') {
+          thisWeekInc += t.amount;
+        } else {
+          thisWeekExp += t.amount;
+        }
+      }
 
-  if (t.date.isBefore(startDate)) {
-    continue;
-  }
+      if (t.date.isBefore(startDate)) {
+        continue;
+      }
 
-  if (t.type == 'income') {
+      // For yearly, also skip if past this year
+      if (timeframe == 'Yearly' && t.date.year != now.year) {
+        continue;
+      }
+      // For monthly, skip if not current month
+      if (timeframe == 'Monthly' && (t.date.month != now.month || t.date.year != now.year)) {
+        continue;
+      }
+      // For weekly, skip if past this Saturday
+      if (timeframe == 'Weekly' && t.date.isAfter(thisWeekSunday.add(const Duration(days: 6, hours: 23, minutes: 59, seconds: 59)))) {
+        continue;
+      }
+
+      if (t.type == 'income') {
         income += t.amount;
       } else {
         expense += t.amount;
@@ -125,9 +147,9 @@ final analyticsDataProvider = Provider.family<AsyncValue<AnalyticsData>, String>
       // Group into trend
       String key;
       if (timeframe == 'Weekly') {
-        key = DateFormat('EEE').format(t.date);
+        key = DateFormat('MMM d').format(t.date);
       } else if (timeframe == 'Monthly') {
-        key = DateFormat('MMM dd').format(t.date);
+        key = DateFormat('MMM d').format(t.date);
       } else {
         key = DateFormat('MMM-yyyy').format(t.date);
       }
