@@ -56,7 +56,7 @@ class MoneyFriendsSection extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Budget Progress',
+              'Shared with Friends',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -269,11 +269,26 @@ class MoneyFriendsSection extends ConsumerWidget {
                               ),
                             );
                           },
+                          borderRadius: BorderRadius.circular(10),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF2A7865),
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Color(0xFF0CAF88),
+                                  Color(0xFF059669),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
                               borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color(0xFF0CAF88).withValues(alpha: 0.35),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
                             ),
                             child: const Column(
                               children: [
@@ -281,9 +296,9 @@ class MoneyFriendsSection extends ConsumerWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(
-                                      Icons.call_made,
-                                      color: Colors.white,
-                                      size: 16,
+                                      Icons.north_east_rounded,
+                                      color: Color(0xFFB2F5E4),
+                                      size: 15,
                                     ),
                                     SizedBox(width: 4),
                                     Text(
@@ -296,11 +311,11 @@ class MoneyFriendsSection extends ConsumerWidget {
                                     ),
                                   ],
                                 ),
-                                SizedBox(height: 2),
+                                SizedBox(height: 1),
                                 Text(
                                   'Add Record',
                                   style: TextStyle(
-                                    color: Colors.white70,
+                                    color: Color(0xFFD1FAF0),
                                     fontSize: 11,
                                   ),
                                 ),
@@ -323,11 +338,26 @@ class MoneyFriendsSection extends ConsumerWidget {
                               ),
                             );
                           },
+                          borderRadius: BorderRadius.circular(10),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
                             decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 163, 79, 107),
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Color(0xFF818CF8),
+                                  Color(0xFF6366F1),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
                               borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color(0xFF6366F1).withValues(alpha: 0.35),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
                             ),
                             child: const Column(
                               children: [
@@ -335,31 +365,26 @@ class MoneyFriendsSection extends ConsumerWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(
-                                      Icons.call_received,
-                                      color: Color.fromARGB(255, 255, 255, 255),
-                                      size: 16,
+                                      Icons.south_west_rounded,
+                                      color: Color(0xFFC7D2FE),
+                                      size: 15,
                                     ),
                                     SizedBox(width: 4),
                                     Text(
                                       'I Borrowed',
                                       style: TextStyle(
-                                        color: Color.fromARGB(
-                                          255,
-                                          255,
-                                          255,
-                                          255,
-                                        ),
+                                        color: Colors.white,
                                         fontSize: 13,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ],
                                 ),
-                                SizedBox(height: 2),
+                                SizedBox(height: 1),
                                 Text(
                                   'Add Record',
                                   style: TextStyle(
-                                    color: Color.fromARGB(255, 236, 236, 236),
+                                    color: Color(0xFFE0E7FF),
                                     fontSize: 11,
                                   ),
                                 ),
