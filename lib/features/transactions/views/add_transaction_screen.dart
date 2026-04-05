@@ -20,8 +20,14 @@ const _kIncomeColor = Color(0xFF22C55E);
 class AddTransactionScreen extends HookConsumerWidget {
   static const String routeName = '/add-transaction';
   final TransactionModel? existingTransaction;
+  /// Pre-select 'Income' or 'Expense' when opening a new transaction record.
+  final String initialType;
 
-  const AddTransactionScreen({super.key, this.existingTransaction});
+  const AddTransactionScreen({
+    super.key,
+    this.existingTransaction,
+    this.initialType = 'Expense',
+  });
 
   // ─── Build ─────────────────────────────────────────────────────────────────
   @override
@@ -40,7 +46,7 @@ class AddTransactionScreen extends HookConsumerWidget {
     final selectedType = useState<String>(
       existingTransaction != null
           ? (existingTransaction!.type == 'income' ? 'Income' : 'Expense')
-          : 'Expense',
+          : initialType, // use the passed-in initial type (Income/Expense)
     );
     final selectedDate =
         useState<DateTime>(existingTransaction?.date ?? DateTime.now());

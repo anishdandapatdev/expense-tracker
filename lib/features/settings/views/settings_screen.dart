@@ -141,10 +141,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, size: 20),
-          onPressed: () => context.pop(),
-        ),
         title: const Text(
           'Settings',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),

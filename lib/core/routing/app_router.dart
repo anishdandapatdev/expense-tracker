@@ -14,33 +14,34 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/', 
     redirect: (context, state) {
+      // While auth state is still loading, don't redirect
       if (authState.isLoading) return null;
 
-      // Get the actual Firebase User object
       final user = authState.valueOrNull;
-      final isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/signup';
+      final isAuthRoute = state.matchedLocation == '/login' ||
+          state.matchedLocation == '/signup';
 
-      // 1. If the user is NOT logged in and trying to access a secure route, kick to login
-      if (user == null && !isAuthRoute) {
-        return '/login';
-      }
+      // 1. Not logged in → go to login
+      if (user == null && !isAuthRoute) return '/login';
 
-      // 2. If the user IS logged in...
       if (user != null) {
-        // ...but their email is NOT verified, prevent them from going to the Home screen.
-        // This stops the screen flashing bug during sign-up.
-        if (!user.emailVerified) {
-           if (!isAuthRoute) return '/login'; // Keep them out of the main app
-           return null; // Let them stay on the signup screen while the background sign-out happens
+        // Determine if this user signed in via email/password
+        // Google users always have emailVerified = true from Google's side,
+        // but Firebase may not have propagated it yet — so we check the provider.
+        final isEmailPasswordUser = user.providerData
+            .any((info) => info.providerId == 'password');
+
+        // 2. Email/password users MUST have verified their email before entering the app
+        if (isEmailPasswordUser && !user.emailVerified) {
+          if (!isAuthRoute) return '/login';
+          return null; // Stay on auth route while background sign-out happens
         }
-        
-        // ...and their email IS verified, send them Home if they try to view login/signup
-        if (isAuthRoute) {
-          return '/';
-        }
+
+        // 3. All verified/social users → redirect away from auth screens
+        if (isAuthRoute) return '/';
       }
 
-      // 3. Otherwise, let them proceed normally
+      // 4. Otherwise proceed normally
       return null;
     },
     routes: [

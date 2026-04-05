@@ -275,7 +275,7 @@ class MoneyFriendsSection extends ConsumerWidget {
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
                                 colors: [
-                                  Color(0xFF0CAF88),
+                                  Color(0xFF059669),
                                   Color(0xFF059669),
                                 ],
                                 begin: Alignment.topLeft,
@@ -344,7 +344,7 @@ class MoneyFriendsSection extends ConsumerWidget {
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
                                 colors: [
-                                  Color(0xFF818CF8),
+                                  Color(0xFF6366F1),
                                   Color(0xFF6366F1),
                                 ],
                                 begin: Alignment.topLeft,

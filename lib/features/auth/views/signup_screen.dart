@@ -23,44 +23,78 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     super.dispose();
   }
 
+  /// Email + Password sign-up
   void _handleSignUp() async {
-    // 1. Validate the form before making network requests
     if (!_formKey.currentState!.validate()) return;
-
-    // Remove keyboard focus
     FocusScope.of(context).unfocus();
 
     await ref.read(authControllerProvider.notifier).signUpWithEmail(
           _emailController.text.trim(),
           _passwordController.text.trim(),
         );
-    
+
+    if (!mounted) return;
     final authState = ref.read(authControllerProvider);
-    
-    if (authState.hasError && mounted) {
+
+    if (authState.hasError) {
+      final friendlyMsg = _friendlyFirebaseError(authState.error.toString());
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(authState.error.toString()),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(friendlyMsg), backgroundColor: Colors.red),
       );
-    } else if (mounted) {
-      // 2. Show success message to check email
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Account created! Please check your email to verify your account.'),
+          content:
+              Text('Account created! Please check your email to verify.'),
           backgroundColor: Colors.green,
           duration: Duration(seconds: 5),
         ),
       );
-      // 3. Route back to login instead of the main app
-      context.go('/login'); 
+      context.go('/login');
     }
+  }
+
+  /// Google Sign-In — same flow as the login screen
+  void _handleGoogleSignUp() async {
+    await ref.read(authControllerProvider.notifier).loginWithGoogle();
+    if (!mounted) return;
+    final authState = ref.read(authControllerProvider);
+    if (authState.hasError) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content:
+              Text(_friendlyFirebaseError(authState.error.toString())),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } else {
+      // New Google users land on currency-setup, existing go straight home
+      context.go('/currency-setup');
+    }
+  }
+
+  /// Converts raw Firebase error strings to readable messages
+  String _friendlyFirebaseError(String raw) {
+    if (raw.contains('email-already-in-use')) {
+      return 'An account already exists with this email. Try logging in.';
+    }
+    if (raw.contains('invalid-email')) return 'Please enter a valid email.';
+    if (raw.contains('weak-password')) {
+      return 'Password is too weak. Use at least 6 characters.';
+    }
+    if (raw.contains('network-request-failed')) {
+      return 'No internet connection. Please check your network.';
+    }
+    if (raw.contains('channel-error')) {
+      return 'Please fill in all fields.';
+    }
+    return 'Sign-up failed. Please try again.';
   }
 
   @override
   Widget build(BuildContext context) {
     final isLoading = ref.watch(authControllerProvider).isLoading;
+    final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Create Account')),
@@ -72,45 +106,45 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // ── Email ────────────────────────────────────────────────
                 TextFormField(
                   controller: _emailController,
                   decoration: const InputDecoration(
-                    labelText: 'Email', 
+                    labelText: 'Email',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.email_outlined),
                   ),
                   keyboardType: TextInputType.emailAddress,
                   autocorrect: false,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
+                    if (value == null || value.trim().isEmpty) {
                       return 'Please enter an email address';
                     }
-                    // Basic email validation regex
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                        .hasMatch(value.trim())) {
                       return 'Please enter a valid email address';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
+
+                // ── Password ─────────────────────────────────────────────
                 TextFormField(
                   controller: _passwordController,
+                  obscureText: _obscurePassword,
                   decoration: InputDecoration(
-                    labelText: 'Password', 
+                    labelText: 'Password',
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
+                      icon: Icon(_obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility),
+                      onPressed: () => setState(
+                          () => _obscurePassword = !_obscurePassword),
                     ),
                   ),
-                  obscureText: _obscurePassword,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a password';
@@ -122,16 +156,57 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   },
                 ),
                 const SizedBox(height: 24),
+
+                // ── Sign Up Button ────────────────────────────────────────
                 ElevatedButton(
                   onPressed: isLoading ? null : _handleSignUp,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Theme.of(context).primaryColor,
+                    backgroundColor: primaryColor,
                     foregroundColor: Colors.white,
                   ),
-                  child: isLoading 
-                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text('Sign Up', style: TextStyle(fontSize: 16)),
+                  child: isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2),
+                        )
+                      : const Text('Sign Up',
+                          style: TextStyle(fontSize: 16)),
+                ),
+                const SizedBox(height: 16),
+
+                // ── OR Divider ────────────────────────────────────────────
+                Row(
+                  children: [
+                    const Expanded(child: Divider()),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text('OR',
+                          style:
+                              TextStyle(color: Colors.grey.shade500)),
+                    ),
+                    const Expanded(child: Divider()),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // ── Google Sign-Up Button ─────────────────────────────────
+                OutlinedButton.icon(
+                  onPressed: isLoading ? null : _handleGoogleSignUp,
+                  icon: const Icon(Icons.g_mobiledata, size: 28),
+                  label: const Text('Sign up with Google'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // ── Already have account ──────────────────────────────────
+                TextButton(
+                  onPressed: () => context.go('/login'),
+                  child: const Text('Already have an account? Login'),
                 ),
               ],
             ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:expense_tracker/features/transactions/views/add_transaction_screen.dart';
 
+// ─── Balance Card ─────────────────────────────────────────────────────────────
 class BalanceCardScreen extends StatelessWidget {
   final double totalBalance;
   final double totalIncome;
@@ -15,13 +17,10 @@ class BalanceCardScreen extends StatelessWidget {
     required this.currencySymbol,
   });
 
-  // Helper method to format large numbers compactly (e.g., 10,000 -> 10K)
   String _formatAmount(double amount) {
-    // If the amount is 10k or more (or -10k or less), use compact format
     if (amount >= 10000 || amount <= -10000) {
       return NumberFormat.compact(locale: 'en_US').format(amount);
     }
-    // Otherwise, use the standard format with two decimal places
     return NumberFormat('#,##0.00', 'en_US').format(amount);
   }
 
@@ -34,11 +33,10 @@ class BalanceCardScreen extends StatelessWidget {
     Color bgColor,
     bool isSmallScreen,
   ) {
-    return Expanded( // Ensures the box doesn't push past the screen bounds
+    return Expanded(
       child: Container(
-        // Reduce padding dynamically for small screens
         padding: EdgeInsets.symmetric(
-          horizontal: isSmallScreen ? 8 : 16, 
+          horizontal: isSmallScreen ? 8 : 16,
           vertical: 12,
         ),
         decoration: BoxDecoration(
@@ -48,14 +46,8 @@ class BalanceCardScreen extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon, 
-              color: Colors.white70, 
-              size: isSmallScreen ? 14 : 16 // Smaller icon on small screens
-            ),
+            Icon(icon, color: Colors.white70, size: isSmallScreen ? 14 : 16),
             SizedBox(width: isSmallScreen ? 4 : 8),
-            
-            // Use Expanded here to prevent the text from overflowing inside the box
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,17 +55,17 @@ class BalanceCardScreen extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      color: Colors.white70, 
-                      fontSize: isSmallScreen ? 10 : 12, // Smaller title
+                      color: Colors.white70,
+                      fontSize: isSmallScreen ? 10 : 12,
                     ),
-                    overflow: TextOverflow.ellipsis, // Add ellipsis just in case
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     '$symbol${_formatAmount(amount)}',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: isSmallScreen ? 14 : 16, // Smaller amount font
+                      fontSize: isSmallScreen ? 14 : 16,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -88,14 +80,13 @@ class BalanceCardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Detect screen width to determine if it's a small device
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final isSmallScreen = screenWidth < 360; 
-    
+    final isSmallScreen = screenWidth < 360;
     final moneyFormat = NumberFormat('#,##0.00', 'en_US');
+    final isEmpty = totalBalance == 0 && totalIncome == 0;
 
     return Container(
-      padding: EdgeInsets.all(isSmallScreen ? 14 : 18), // Adjust outer padding
+      padding: EdgeInsets.all(isSmallScreen ? 14 : 18),
       decoration: BoxDecoration(
         color: Theme.of(context).primaryColor,
         borderRadius: BorderRadius.circular(24),
@@ -110,64 +101,130 @@ class BalanceCardScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'TOTAL BALANCE',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: isSmallScreen ? 10 : 12,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.2,
-            ),
+          // ── Label row: "TOTAL BALANCE" + animated "Get Started" badge ──────
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'TOTAL BALANCE',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: isSmallScreen ? 10 : 12,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              // Show badge only when completely empty
+              if (isEmpty)
+                _buildAddIncomeButton(context),
+            ],
           ),
           const SizedBox(height: 3),
+
+          // ── Balance amount ────────────────────────────────────────────────
           Text(
-            // Keeping the total balance full-sized as it's the main focus,
-            // but you could apply _formatAmount here too if you prefer!
             '$currencySymbol${moneyFormat.format(totalBalance)}',
             style: TextStyle(
               color: Colors.white,
-              fontSize: isSmallScreen ? 28 : 36, // Adjust main balance text size
+              fontSize: isSmallScreen ? 28 : 36,
               fontWeight: FontWeight.bold,
             ),
-            // FittedBox ensures if the balance is huge, it scales down instead of wrapping
-            maxLines: 1, 
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 2),
-          if (totalBalance < 0)
+          if (totalBalance < 0) ...[
+            const SizedBox(height: 2),
             Text(
               'You overspent $currencySymbol${moneyFormat.format(-totalBalance)} this month',
               style: TextStyle(
-                color: Colors.white70, 
+                color: Colors.white70,
                 fontSize: isSmallScreen ? 12 : 14,
               ),
               overflow: TextOverflow.ellipsis,
             ),
+          ],
+
           const SizedBox(height: 8),
           Row(
             children: [
               _buildIncomeExpenseBox(
-                context,
-                'Income',
-                totalIncome,
-                currencySymbol,
-                Icons.arrow_upward,
-                Colors.white24,
-                isSmallScreen,
+                context, 'Income', totalIncome,
+                currencySymbol, Icons.arrow_upward,
+                Colors.white24, isSmallScreen,
               ),
-              // Dynamic gap between the two boxes
-              SizedBox(width: isSmallScreen ? 8 : 16), 
+              SizedBox(width: isSmallScreen ? 8 : 16),
               _buildIncomeExpenseBox(
-                context,
-                'Expenses',
-                totalExpense,
-                currencySymbol,
-                Icons.arrow_downward,
-                Colors.white24,
-                isSmallScreen,
+                context, 'Expenses', totalExpense,
+                currencySymbol, Icons.arrow_downward,
+                Colors.white24, isSmallScreen,
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  /// Builds the animated "Get Started" pill badge
+  Widget _buildAddIncomeButton(BuildContext context) {
+    return _PulseBtn(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => const AddTransactionScreen(initialType: 'Income'),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ─── Pulsing "Get Started" Badge ─────────────────────────────────────────────
+// A self-contained stateful widget that gently breathes (scale pulse)
+// to attract the user's attention. Completely visually distinct from
+// the rest of the card — bright green with a glow shadow.
+// ─── Static "Add Balance" Badge ─────────────────────────────────────────────
+// Now a stateless widget with no pulsing or scaling animations.Color(0xFF34D399)
+class _PulseBtn extends StatelessWidget {
+  final VoidCallback onTap;
+  const _PulseBtn({required this.onTap});
+
+  static const _green = Color(0xFF22C55E);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [_green, _green],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.add,
+              color: Colors.white,
+              size: 18,
+            ),
+            SizedBox(width: 5),
+            Text(
+              'Add Balance',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.3,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
