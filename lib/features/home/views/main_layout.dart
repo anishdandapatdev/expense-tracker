@@ -16,53 +16,160 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
 
-  // List of screens for the bottom nav
   final List<Widget> _screens = [
     const HomeScreen(),
     const AnalyticsScreen(),
-    const SizedBox(), // Placeholder for the center Add button
     const BudgetsScreen(),
     const SettingsScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
+    final activeColor = primaryColor;
+    final inactiveColor = isDark ? Colors.grey.shade500 : Colors.grey.shade600;
+    final barBg = isDark ? const Color(0xFF1E293B) : Colors.white;
+
     return Scaffold(
+      // Prevent SnackBar from pushing the bottom bar up
+      resizeToAvoidBottomInset: false,
       body: Column(
         children: [
           const OfflineBanner(),
           Expanded(child: _screens[_currentIndex]),
         ],
       ),
-      // Center Floating Action Button
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/add-transaction'),
-        backgroundColor: Theme.of(context).primaryColor,
-        shape: const CircleBorder(),
-        elevation: 4,
-        child: const Icon(Icons.add, color: Colors.white, size: 32),
+
+      // ─── Center FAB with fixed position ────────────────
+      floatingActionButton: SizedBox(
+        width: 60,
+        height: 60,
+        child: FloatingActionButton(
+          onPressed: () => context.push('/add-transaction'),
+          backgroundColor: primaryColor,
+          shape: const CircleBorder(),
+          elevation: 6,
+          child: const Icon(Icons.add, color: Colors.white, size: 30),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          // Prevent tapping the center placeholder
-          if (index != 2) {
-            setState(() => _currentIndex = index);
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Theme.of(context).primaryColor,
-        unselectedItemColor: Colors.grey.shade600,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart_rounded), label: 'Analytics'),
-          BottomNavigationBarItem(icon: Icon(Icons.add, color: Colors.transparent), label: ''), // Invisible center item
-          BottomNavigationBarItem(icon: Icon(Icons.pie_chart_outline), label: 'Budget'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: 'Settings'),
-        ],
+
+      // ─── Bottom bar with notch curve ───────────────────
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8,
+        color: barBg,
+        elevation: 12,
+        clipBehavior: Clip.antiAlias,
+        child: SizedBox(
+          height: 60,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // ── Left side (Home + Analytics) ──
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _NavBarItem(
+                      icon: Icons.home_filled,
+                      label: 'Home',
+                      isActive: _currentIndex == 0,
+                      activeColor: activeColor,
+                      inactiveColor: inactiveColor,
+                      onTap: () => setState(() => _currentIndex = 0),
+                    ),
+                    _NavBarItem(
+                      icon: Icons.bar_chart_rounded,
+                      label: 'Analytics',
+                      isActive: _currentIndex == 1,
+                      activeColor: activeColor,
+                      inactiveColor: inactiveColor,
+                      onTap: () => setState(() => _currentIndex = 1),
+                    ),
+                  ],
+                ),
+              ),
+
+              // ── Center gap for FAB ──
+              const SizedBox(width: 60),
+
+              // ── Right side (Budget + Settings) ──
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _NavBarItem(
+                      icon: Icons.pie_chart_outline,
+                      label: 'Budget',
+                      isActive: _currentIndex == 2,
+                      activeColor: activeColor,
+                      inactiveColor: inactiveColor,
+                      onTap: () => setState(() => _currentIndex = 2),
+                    ),
+                    _NavBarItem(
+                      icon: Icons.settings_outlined,
+                      label: 'Settings',
+                      isActive: _currentIndex == 3,
+                      activeColor: activeColor,
+                      inactiveColor: inactiveColor,
+                      onTap: () => setState(() => _currentIndex = 3),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A single nav bar item with icon + label.
+class _NavBarItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool isActive;
+  final Color activeColor;
+  final Color inactiveColor;
+  final VoidCallback onTap;
+
+  const _NavBarItem({
+    required this.icon,
+    required this.label,
+    required this.isActive,
+    required this.activeColor,
+    required this.inactiveColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isActive ? activeColor : inactiveColor;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(height: 3),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                color: color,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
