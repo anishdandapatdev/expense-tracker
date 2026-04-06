@@ -79,3 +79,4 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
 
     state = await AsyncValue.guard(() => _authRepository.signOut());
   }
+}
