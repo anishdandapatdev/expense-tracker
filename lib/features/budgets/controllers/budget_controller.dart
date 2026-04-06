@@ -3,15 +3,11 @@ import 'package:expense_tracker/features/budgets/models/budget_model.dart';
 import 'package:expense_tracker/features/budgets/repositories/budget_repository.dart';
 import 'package:expense_tracker/features/transactions/controllers/transaction_controller.dart';
 import 'package:expense_tracker/features/auth/repositories/auth_repository.dart';
-
-// Helper class for the UI
 class BudgetProgress {
   final BudgetModel budget;
   final double spentAmount;
 
   BudgetProgress({required this.budget, required this.spentAmount});
-
-  // FIXED: Returning 0.0 instead of 0
   double get percentUsed => budget.limitAmount > 0 ? (spentAmount / budget.limitAmount) : 0.0;
   double get amountLeft => budget.limitAmount - spentAmount;
 }
@@ -21,7 +17,7 @@ final budgetsStreamProvider = StreamProvider.family<List<BudgetModel>, String>((
   return ref.watch(budgetRepositoryProvider).getUserBudgets(userId);
 });
 
-// The smart provider that calculates progress
+//  provider that calculates progress
 final budgetProgressProvider = Provider<AsyncValue<List<BudgetProgress>>>((ref) {
   final user = ref.watch(authStateProvider).value;
   if (user == null) return const AsyncValue.loading();
@@ -39,8 +35,6 @@ final budgetProgressProvider = Provider<AsyncValue<List<BudgetProgress>>>((ref) 
 
   final transactions = transactionsAsync.value ?? [];
   final budgets = budgetsAsync.value ?? [];
-
-  // Get current month to only calculate recent expenses
   final now = DateTime.now();
 
   List<BudgetProgress> progressList = [];
@@ -48,8 +42,6 @@ final budgetProgressProvider = Provider<AsyncValue<List<BudgetProgress>>>((ref) 
   for (var budget in budgets) {
     double spent = 0;
     for (var t in transactions) {
-      // 1. ADDED FALLBACK LOGIC HERE
-      // This ensures old 'Food' transactions count towards the new 'Food & Drink' budget
       bool isCategoryMatch = (t.category == budget.category) || 
                              (budget.category == 'Food & Drink' && t.category == 'Food');
 

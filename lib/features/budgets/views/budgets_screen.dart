@@ -1,4 +1,3 @@
-//expense_tracker\lib\features\budgets\views\budgets_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -10,7 +9,7 @@ import 'package:expense_tracker/features/budgets/controllers/budget_controller.d
 class BudgetsScreen extends ConsumerWidget {
   const BudgetsScreen({super.key});
 
-  // A simple bottom sheet dialog to set/edit a budget limit
+  // A bottom sheet dialog to set/edit a budget limit
   void _showSetBudgetDialog(
     BuildContext context,
     WidgetRef ref,

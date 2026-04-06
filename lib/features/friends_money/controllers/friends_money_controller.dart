@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
-import 'package:expense_tracker/features/friends_money/models/friend_money_model.dart';
+import 'package:expense_tracker/features/friends_money/models/friends_money_model.dart';
 import 'package:expense_tracker/features/friends_money/repositories/friend_money_repository.dart';
 
 final friendMoneyStreamProvider =

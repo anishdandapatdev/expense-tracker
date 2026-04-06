@@ -4,7 +4,7 @@ class NotificationItem {
   final String id;
   final String title;
   final String body;
-  final String type; // 'reminder' | 'budget_alert' | 'weekly_summary' | 'savings_milestone'
+  final String type; 
   final DateTime timestamp;
   final bool isRead;
 

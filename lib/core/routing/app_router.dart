@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:expense_tracker/features/home/views/main_layout.dart';
+import 'package:expense_tracker/core/layout/main_layout.dart';
 import 'package:expense_tracker/features/settings/views/currency_selection_screen.dart';
 import 'package:expense_tracker/features/transactions/views/add_transaction_screen.dart';
 import 'package:expense_tracker/features/auth/views/login_screen.dart';
@@ -25,9 +25,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (user == null && !isAuthRoute) return '/login';
 
       if (user != null) {
-        // Determine if this user signed in via email/password
-        // Google users always have emailVerified = true from Google's side,
-        // but Firebase may not have propagated it yet — so we check the provider.
+      
         final isEmailPasswordUser = user.providerData
             .any((info) => info.providerId == 'password');
 

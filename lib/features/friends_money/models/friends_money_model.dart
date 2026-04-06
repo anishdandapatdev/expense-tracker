@@ -4,7 +4,7 @@ class FriendMoneyModel {
   final String id;
   final String userId;
   final String friendName;
-  final String type; // 'lent' (they owe you) or 'borrowed' (you owe them)
+  final String type;
   final double amount;
   final DateTime date;
   final String? note;

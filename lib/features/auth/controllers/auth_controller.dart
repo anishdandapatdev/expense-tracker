@@ -1,13 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/features/auth/repositories/auth_repository.dart';
 import 'package:expense_tracker/features/transactions/controllers/transaction_controller.dart';
-import 'package:expense_tracker/features/friends_money/controllers/friend_money_controller.dart';
+import 'package:expense_tracker/features/friends_money/controllers/friends_money_controller.dart';
 import 'package:expense_tracker/features/budgets/controllers/budget_controller.dart';
 import 'package:expense_tracker/features/savings_goal/controllers/savings_goal_controller.dart';
 
 final authControllerProvider =
     StateNotifierProvider<AuthController, AsyncValue<void>>((ref) {
-  // Pass ref so the controller can invalidate stale providers on session change
   return AuthController(ref.watch(authRepositoryProvider), ref);
 });
 
@@ -80,4 +79,3 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
 
     state = await AsyncValue.guard(() => _authRepository.signOut());
   }
-}

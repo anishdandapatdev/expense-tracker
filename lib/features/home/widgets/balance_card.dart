@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:expense_tracker/features/transactions/views/add_transaction_screen.dart';
 
-// ─── Balance Card ─────────────────────────────────────────────────────────────
+// ─── Balance Card ─────
 class BalanceCardScreen extends StatelessWidget {
   final double totalBalance;
   final double totalIncome;
@@ -101,7 +101,7 @@ class BalanceCardScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Label row: "TOTAL BALANCE" + animated "Get Started" badge ──────
+          // ── Label row: "TOTAL BALANCE" + "Add Balance" badge ──────
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -121,7 +121,7 @@ class BalanceCardScreen extends StatelessWidget {
           ),
           const SizedBox(height: 3),
 
-          // ── Balance amount ────────────────────────────────────────────────
+          // ── Balance amount ──────────
           Text(
             '$currencySymbol${moneyFormat.format(totalBalance)}',
             style: TextStyle(
@@ -165,7 +165,7 @@ class BalanceCardScreen extends StatelessWidget {
     );
   }
 
-  /// Builds the animated "Get Started" pill badge
+  
   Widget _buildAddIncomeButton(BuildContext context) {
     return _PulseBtn(
       onTap: () {
@@ -178,13 +178,7 @@ class BalanceCardScreen extends StatelessWidget {
     );
   }
 }
-
-// ─── Pulsing "Get Started" Badge ─────────────────────────────────────────────
-// A self-contained stateful widget that gently breathes (scale pulse)
-// to attract the user's attention. Completely visually distinct from
-// the rest of the card — bright green with a glow shadow.
-// ─── Static "Add Balance" Badge ─────────────────────────────────────────────
-// Now a stateless widget with no pulsing or scaling animations.Color(0xFF34D399)
+// ─── Static "Add Balance" Badge ───────
 class _PulseBtn extends StatelessWidget {
   final VoidCallback onTap;
   const _PulseBtn({required this.onTap});

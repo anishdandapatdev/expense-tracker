@@ -14,7 +14,6 @@ class AppTheme {
         primary: primaryColor,
         secondary: accentColor,
       ),
-      // FIX: Changed CardTheme to CardThemeData
       cardTheme: const CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -28,7 +27,6 @@ class AppTheme {
         iconTheme: IconThemeData(color: Colors.black87),
         titleTextStyle: TextStyle(color: Colors.black87, fontSize: 20, fontWeight: FontWeight.bold),
       ),
-      // SnackBars float above the bottom bar — FAB stays docked and never moves
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
@@ -47,7 +45,6 @@ class AppTheme {
         secondary: accentColor,
         surface: Color(0xFF1E293B), 
       ),
-      // FIX: Changed CardTheme to CardThemeData
       cardTheme: const CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -61,7 +58,6 @@ class AppTheme {
         iconTheme: IconThemeData(color: Colors.white),
         titleTextStyle: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
       ),
-      // SnackBars float above the bottom bar — FAB stays docked and never moves
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),

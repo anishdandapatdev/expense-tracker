@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/features/auth/repositories/auth_repository.dart';
 import 'package:expense_tracker/features/settings/controllers/currency_controller.dart';
 import 'package:expense_tracker/features/transactions/controllers/transaction_controller.dart';
-import 'package:expense_tracker/features/home/views/transactions_list.dart';
+import 'package:expense_tracker/features/home/widgets/transactions_list.dart';
 
 class FullTransactionsScreen extends ConsumerWidget {
   const FullTransactionsScreen({super.key});

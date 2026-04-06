@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'firebase_options.dart';
 import 'core/theme/app_theme.dart';
-import 'core/routing/app_router.dart'; // Ensure this points to where routerProvider is defined
+import 'core/routing/app_router.dart'; 
 import 'features/settings/views/app_lock_wrapper.dart';
 import 'features/notifications/services/notification_service.dart';
 import 'features/settings/controllers/theme_controller.dart';
@@ -31,20 +31,17 @@ void main() async {
   await notificationService.requestPermission();
   
   runApp(
-    // ProviderScope is required for Riverpod
     const ProviderScope(
       child: SpendWiseApp(),
     ),
   );
 }
 
-// Changed to ConsumerWidget to access Riverpod providers
 class SpendWiseApp extends ConsumerWidget {
   const SpendWiseApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Watch the router provider to keep navigation in sync with auth state
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
@@ -52,7 +49,7 @@ class SpendWiseApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ref.watch(themeModeProvider),
-      routerConfig: router, // Pass the dynamic router here instead of the static appRouter
+      routerConfig: router, 
       debugShowCheckedModeBanner: false,
       builder: (context, child) {
         return AppLockWrapper(

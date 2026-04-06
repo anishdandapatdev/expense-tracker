@@ -184,7 +184,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ─── Handle bar ─────────────────────────────────
+          // ─── Handle bar ─────
           const SizedBox(height: 12),
           Container(
             width: 40,
@@ -195,7 +195,7 @@ class _CurrencyPickerSheetState extends ConsumerState<_CurrencyPickerSheet> {
             ),
           ),
 
-          // ─── Title Row ──────────────────────────────────
+          // ─── Title Row ──
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 18, 12, 4),
             child: Row(

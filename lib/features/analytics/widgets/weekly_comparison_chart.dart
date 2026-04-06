@@ -118,7 +118,7 @@ class WeeklyComparisonChart extends StatelessWidget {
                     barRods: [
                       BarChartRodData(
                         toY: data.lastWeekIncome,
-                        color: incomeColor.withValues(alpha: 0.5), // Dimmed slightly to depict "history"
+                        color: incomeColor.withValues(alpha: 0.5), 
                         width: 28,
                         borderRadius: const BorderRadius.only(topLeft: Radius.circular(4), topRight: Radius.circular(4)),
                       ),

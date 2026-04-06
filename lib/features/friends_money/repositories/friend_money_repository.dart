@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:expense_tracker/features/friends_money/models/friend_money_model.dart';
+import 'package:expense_tracker/features/friends_money/models/friends_money_model.dart';
 
 final friendMoneyRepositoryProvider = Provider<FriendMoneyRepository>((ref) {
   return FriendMoneyRepository(FirebaseFirestore.instance);

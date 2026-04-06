@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Provides a real-time stream of the device's connectivity status.
+// real-time stream of the device's connectivity status.
 /// Returns `true` when online, `false` when offline.
 final connectivityProvider = StreamProvider<bool>((ref) {
   final connectivity = Connectivity();

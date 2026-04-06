@@ -17,7 +17,7 @@ class WeeklyComparison {
   });
 }
 
-// A helper class to hold all our crunched data for the UI
+// hold all our crunched data for the UI
 class AnalyticsData {
   final double totalIncome;
   final double totalExpense;
@@ -74,7 +74,7 @@ final analyticsDataProvider = Provider.family<AsyncValue<AnalyticsData>, String>
       startDate = DateTime(now.year, 1, 1);
     }
     
-    // Create zero-filled map for the timeline
+    // zero-filled map for the timeline
     Map<String, Map<String, double>> trend = {};
     
     if (timeframe == 'Weekly') {

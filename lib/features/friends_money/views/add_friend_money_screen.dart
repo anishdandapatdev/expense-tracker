@@ -5,8 +5,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:expense_tracker/features/settings/controllers/currency_controller.dart';
 import 'package:expense_tracker/features/auth/repositories/auth_repository.dart';
-import 'package:expense_tracker/features/friends_money/models/friend_money_model.dart';
-import 'package:expense_tracker/features/friends_money/controllers/friend_money_controller.dart';
+import 'package:expense_tracker/features/friends_money/models/friends_money_model.dart';
+import 'package:expense_tracker/features/friends_money/controllers/friends_money_controller.dart';
 
 class AddFriendMoneyScreen extends HookConsumerWidget {
   static const String routeName = '/add-friend-money';

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:expense_tracker/features/auth/controllers/auth_controller.dart';
 
-// ─── Colours (used in both light & dark) ────────────────────────────────────
+// Colours
 const _kPrimary = Color(0xFF0D3293);
 const _kPrimaryLight = Color(0xFF3D5BDB);
 const _kCardDark = Color(0xFF1E293B);
@@ -29,7 +29,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  // ─── FIREBASE LOGIC — unchanged ─────────────────────────────────────────
+  //  FIREBASE LOGIC
   void _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
@@ -88,7 +88,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
     return 'Login failed. Please try again.';
   }
-  // ─── END FIREBASE LOGIC ─────────────────────────────────────────────────
+  // END FIREBASE LOGIC 
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +111,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // ── Top branding section ─────────────────────────────────
+              // Top branding section 
               Expanded(
                 flex: 2,
                 child: Padding(
@@ -156,7 +156,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ),
 
-              // ── Form card ────────────────────────────────────────────
+              // Form card 
               Expanded(
                 flex: 3,
                 child: Container(
@@ -201,7 +201,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                           const SizedBox(height: 28),
 
-                          // ── Email ──────────────────────────────────
+                          // ── Email 
                           _buildField(
                             controller: _emailController,
                             label: 'Email address',
@@ -316,7 +316,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  // ─── Shared UI helpers ───────────────────────────────────────────────────
+  // ─── Shared UI helpers ─────
 
   Widget _buildField({
     required TextEditingController controller,

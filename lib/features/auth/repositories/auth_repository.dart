@@ -56,11 +56,6 @@ class AuthRepository {
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
-
-    // Once signed in, force-refresh the ID token so Firestore
-    // has a valid auth token BEFORE the home screen fires any queries.
-    // Without this, there is a brief race-condition window where
-    // Firestore rejects requests with 'permission-denied'.
     final userCredential = await _auth.signInWithCredential(credential);
     await userCredential.user?.getIdToken(true); // force token refresh
     return userCredential;

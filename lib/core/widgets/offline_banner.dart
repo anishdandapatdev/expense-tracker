@@ -25,7 +25,7 @@ class OfflineBanner extends ConsumerWidget {
               Icon(Icons.wifi_off, color: Colors.white, size: 16),
               SizedBox(width: 8),
               Text(
-                'You\'re offline — changes will sync automatically',
+                '       You\'re offline   ',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 12,

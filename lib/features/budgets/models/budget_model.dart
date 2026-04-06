@@ -1,5 +1,3 @@
-// expense_tracker\lib\features\budgets\models\budget_model.dart
-// expense_tracker\lib\features\budgets\models\budget_model.dart
 class BudgetModel {
   final String id;
   final String userId;

@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/features/auth/repositories/auth_repository.dart';
 import 'package:expense_tracker/features/settings/controllers/currency_controller.dart';
 import 'package:expense_tracker/features/analytics/controllers/analytics_controller.dart';
-import 'package:expense_tracker/features/analytics/views/widgets/summary_cards_row.dart';
-import 'package:expense_tracker/features/analytics/views/widgets/spending_bar_chart.dart';
-import 'package:expense_tracker/features/analytics/views/widgets/spending_donut_chart.dart';
-import 'package:expense_tracker/features/analytics/views/widgets/trend_line_chart.dart';
-import 'package:expense_tracker/features/analytics/views/widgets/weekly_comparison_chart.dart';
+import 'package:expense_tracker/features/analytics/widgets/summary_cards_row.dart';
+import 'package:expense_tracker/features/analytics/widgets/spending_bar_chart.dart';
+import 'package:expense_tracker/features/analytics/widgets/spending_donut_chart.dart';
+import 'package:expense_tracker/features/analytics/widgets/trend_line_chart.dart';
+import 'package:expense_tracker/features/analytics/widgets/weekly_comparison_chart.dart';
 
 class AnalyticsScreen extends ConsumerWidget {
   const AnalyticsScreen({super.key});
@@ -24,7 +24,6 @@ class AnalyticsScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with padding
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Column(

@@ -41,7 +41,7 @@ class _MainLayoutState extends State<MainLayout> {
         ],
       ),
 
-      // ─── Center FAB with fixed position ────────────────
+      //Center FAB with fixed position
       floatingActionButton: SizedBox(
         width: 60,
         height: 60,
@@ -55,7 +55,7 @@ class _MainLayoutState extends State<MainLayout> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
-      // ─── Bottom bar with notch curve ───────────────────
+      //Bottom bar with notch curve
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 8,
@@ -67,7 +67,7 @@ class _MainLayoutState extends State<MainLayout> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // ── Left side (Home + Analytics) ──
+              //Left side (Home + Analytics)
               Expanded(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -92,9 +92,7 @@ class _MainLayoutState extends State<MainLayout> {
                 ),
               ),
 
-              // ── Center gap for FAB ──
               const SizedBox(width: 60),
-
               // ── Right side (Budget + Settings) ──
               Expanded(
                 child: Row(
@@ -127,7 +125,7 @@ class _MainLayoutState extends State<MainLayout> {
   }
 }
 
-/// A single nav bar item with icon + label.
+
 class _NavBarItem extends StatelessWidget {
   final IconData icon;
   final String label;

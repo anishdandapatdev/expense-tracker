@@ -15,8 +15,6 @@ class AppLockWrapper extends ConsumerStatefulWidget {
 class _AppLockWrapperState extends ConsumerState<AppLockWrapper> with WidgetsBindingObserver {
   bool _isLocked = false;
   bool _isAuthenticating = false;
-
-  // Tracks if the app was actually sent to the background (home button / app switch)
   bool _wasPaused = false;
 
   // Tracks if we've done the initial cold-start check

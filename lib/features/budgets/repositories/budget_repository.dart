@@ -1,4 +1,3 @@
-//expense_tracker\lib\features\budgets\repositories\budget_repository.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:expense_tracker/features/budgets/models/budget_model.dart';
@@ -21,7 +20,6 @@ class BudgetRepository {
     await _budgets.doc(docId).set(budget.toMap());
   }
 
-  // Stream user's budgets
   Stream<List<BudgetModel>> getUserBudgets(String userId) {
     return _budgets
         .where('userId', isEqualTo: userId)

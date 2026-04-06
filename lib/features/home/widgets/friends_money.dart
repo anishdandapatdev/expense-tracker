@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:expense_tracker/features/auth/repositories/auth_repository.dart';
 import 'package:expense_tracker/features/settings/controllers/currency_controller.dart';
-import 'package:expense_tracker/features/friends_money/controllers/friend_money_controller.dart';
+import 'package:expense_tracker/features/friends_money/controllers/friends_money_controller.dart';
 import 'package:expense_tracker/features/friends_money/views/add_friend_money_screen.dart';
 import 'package:expense_tracker/features/friends_money/views/friend_money_list_screen.dart';
 

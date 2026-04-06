@@ -6,12 +6,12 @@ import 'package:expense_tracker/features/auth/repositories/auth_repository.dart'
 import 'package:expense_tracker/features/settings/controllers/currency_controller.dart';
 import 'package:expense_tracker/features/transactions/controllers/transaction_controller.dart';
 
-// Import your custom UI components
-import 'header_homescreen.dart';
-import 'balance_card.dart';
-import 'savings_goal_card.dart';
-import 'money_friends.dart';
-import 'transactions_list.dart';
+import '../widgets/home_header.dart';
+import '../widgets/balance_card.dart';
+import '../widgets/savings_goal_card.dart';
+import '../widgets/weekly_chart.dart';
+import '../widgets/friends_money.dart';
+import '../widgets/transactions_list.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -36,7 +36,7 @@ class HomeScreen extends ConsumerWidget {
             children: [
               const SizedBox(height: 20),
             
-            // --- Externalized Header Component ---
+            //Externalized Header Component
             HeaderHomescreen(email: user?.email),
             
             const SizedBox(height: 14),
@@ -61,7 +61,7 @@ class HomeScreen extends ConsumerWidget {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                      // --- Externalized Balance Card Component ---
+                      //Externalized Balance Card Component
                       BalanceCardScreen(
                         totalBalance: totalBalance,
                         totalIncome: totalIncome,
@@ -71,17 +71,21 @@ class HomeScreen extends ConsumerWidget {
                       
                       const SizedBox(height: 16),
 
-                      // --- Savings Goal Component (Premium Feature) ---
+                      // Savings Goal Component
                       const SavingsGoalCard(),
                       
                       const SizedBox(height: 16),
 
-                      // --- New Money with Friends Component ---
-                      const MoneyFriendsSection(),
+                      // Weekly Expense Chart
+                      const WeeklyExpenseChart(),
 
+                      const SizedBox(height: 16),
+
+                      // New Money with Friends Component
+                      const MoneyFriendsSection(),
                       const SizedBox(height: 18),
 
-                      // --- Externalized Transactions List Component ---
+                      // Externalized Transactions List Component
                       TransactionsList(
                         transactions: transactions.where((t) => !t.isHidden).toList(),
                         currencySymbol: currency.symbol,
